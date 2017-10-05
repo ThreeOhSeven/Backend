@@ -1,25 +1,74 @@
 from app import db
+from sqlalchemy.orm import validates
+from sqlalchemy import and_, ForeignKeyConstraint
+from datetime import datetime
+
 
 class User(db.Model):
     """
          Create the Users table
     """
 
-    __tabelname_ = 'Users'
+    __tablename__ = 'Users'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(32), nullable=False)
-    email = db.Column(db.String(60), nullable=False)
+    username = db.Column(db.String(32), unique=True, nullable=False)
+    email = db.Column(db.String(60), unique=True, nullable=False)
     birthday = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, id, username, email, birthday):
-        self.id = id
+    friend_to = db.relationship('Friend', backref='to', primaryjoin='User.id==Friend.user_to')
+    friend_from = db.relationship('Friend', backref='from', primaryjoin='User.id==Friend.user_from')
+
+    def __init__(self, username, email, birthday):
         self.username = username
         self.email = email
         self.birthday = birthday
 
+    @validates('username')
+    def validate_username(self, key, username):
+        assert db.session.query(User).filter_by(username=username) is not None, "Username taken"
+        return username
+
+    @validates('email')
+    def validate_email(self, key, email):
+        assert '@' in email, 'Invalid email'
+        return email
+
+    @validates('birthday')
+    def validate_birthday(self, key, birthday):
+        assert datetime.strptime(birthday, '%Y/%m/%d'), "Invalid date"
+        return birthday
+
+
     def __repr__(self):
         return '<User id: {}, Username: {}, Email: {}, Birthday: {}>'.format(self.id, self.username, self.email, self.birthday)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+class Friend(db.Model):
+    """
+        Create the Friends table
+    """
+
+    __tablename__ = 'Friends'
+
+    user_to = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
+    user_from = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
+    status = db.Column(db.Integer)
+
+    def __init__(self, user_to, user_from, status):
+        self.user_to = user_to
+        self.user_from = user_from
+        self.status = status
+
+    def __repr__(self):
+        return "user_to: {}, user_from {}, stats: {}".format(self.user_to, self.user_from, self.status)
 
     def save(self):
         db.session.add(self)
