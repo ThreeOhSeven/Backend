@@ -20,9 +20,9 @@ class authBackend:
         newToken = jwt.encode({'user' : self.userid, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=4)}, self.JWT_KEY, algorithm='HS256')
         return newToken
 
-    def google_check(token):
+    def google_check(self, token):
         try:
-            idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+            idinfo = id_token.verify_oauth2_token(token, requests.Request(), self.CLIENT_ID)
             if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
 				raise ValueError('Wrong issuer.')
             userid = idinfo['sub']
