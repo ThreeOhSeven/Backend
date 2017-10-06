@@ -47,6 +47,7 @@ def my_bets():
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
+            bets = db.session.query().filter_by()
             bets = models.Bet.query.filter(models.Bet.creator_id == user.id)
             results = []
 
