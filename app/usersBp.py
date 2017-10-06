@@ -6,11 +6,15 @@ from .models import User
 
 userRoutes = Blueprint('users', __name__)
 
+authClass = authBackend()
+
 @userRoutes.route('/create', methods=['POST'])
 def createUser():
     if request.method == 'POST':
         payload = request.get_json(force=True)
-        # Authenticate
+        token = payload['authToken']
+        if authClass.decode_jwt(token) is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
         username = payload['username']
         email = payload['email']
         birthday = payload['birthday']
@@ -27,8 +31,10 @@ def createUser():
 def getInfo():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
-        # Authenticate
-        id = payload['id']
+        token = payload['authToken']
+        id = authClass.decode_jwt(token)
+        if id is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
         user = db.session.query(User).filter_by(id=id).first()
         if user is None:
             return jsonify({'result': False, 'error': "User does not exist"}), 400
@@ -42,7 +48,9 @@ def getInfo():
 def editInfo():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
-        # Authenticate
+        token = payload['authToken']
+        if authClass.decode_jwt(token) is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
         accountInfo = payload['accountInformation']
         user = db.session.query(User).filter_by(id=accountInfo['id']).first()
         try:
@@ -59,8 +67,9 @@ def editInfo():
 def deleteUser():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
-        # Authenticate
-        id = payload['id']
+        id = authClass.decode_jwt(token)
+        if id is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
         user = db.session.query(User).filter_by(id=id).first()
         if user is None:
             return jsonify({'result': False, 'error': 'User does not exist'}), 400
