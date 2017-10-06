@@ -42,7 +42,6 @@ def my_bets():
         email = authClass.decode_jwt(token)
 
         user_id = db.session.query(User).filter_by(email=email).first()
-
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
