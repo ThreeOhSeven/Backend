@@ -28,12 +28,12 @@ class User(db.Model):
 
     @validates('username')
     def validate_username(self, key, username):
-        assert db.session.query(User).filter_by(username=username).first() is not None, "Username taken"
+        #assert db.session.query(User).filter_by(username=username).first() is not None, "Username taken"
         return username
 
     @validates('email')
     def validate_email(self, key, email):
-        assert '@' in email, 'Invalid email'
+        #assert '@' in email, 'Invalid email'
         return email
 
     @validates('birthday')

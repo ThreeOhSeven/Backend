@@ -5,17 +5,36 @@ from app import db
 from .models import User, Friend
 
 friendsRoutes = Blueprint('friends', __name__)
+from .authBp import authBackend
+
+authClass = authBackend()
 
 @friendsRoutes.route('/', methods=['POST'])
 def getFriends():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
-        id = authClass.decode_jwt(token)
-        if id is False:
+        token = payload['authToken']
+        email = authClass.decode_jwt(token)
+        if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
 
-        friends = db.session.query(Friend).filter(or_(Friend.user_to == id,
-                                                   Friend.user_from == id))
+        user = db.session.query(User).filter_by(email=email).first()
+
+        if user is None:
+            return jsonify({'result': False, 'error': 'User not found'}), 400
+
+        # friends = db.session.query(Friend).filter(or_(Friend.user_to == id, Friend.user_from == id))
+
+
+        id = user.id
+        print("Here")
+
+        friends_to = db.session.query(Friend).filter_by(user_to=id).all()
+        friends_from = db.session.query(Friend).filter_by(user_from=id).all()
+
+
+        friends = friends_to + friends_from
+
         results = []
         for friend in friends:
             obj = {
@@ -34,9 +53,14 @@ def addFriend(id):
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
         token = payload['authToken']
-        from_id = authClass.decode_jwt(token)
-        if from_id is False:
+        email = authClass.decode_jwt(token)
+        if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+        from_id = db.session.query(User).filter_by(email=email).first()
+
+        if from_id is None:
+            return jsonify({'result': False, 'error': 'User not found'}), 400
 
         to_id = int(id)
 
@@ -44,7 +68,7 @@ def addFriend(id):
             return jsonify({'result': False, 'error': 'User cannot add themselves'}), 400
 
         user_to = db.session.query(User).filter_by(id=to_id).first()
-        user_from = db.session.query(User).filter_by(id=from_id).first()
+        user_from = db.session.query(User).filter_by(id=from_id.id).first()
 
         if user_to is None or user_from is None:
             return jsonify({'result': False, 'error': 'One or more user not found in the database'}), 400
@@ -67,18 +91,22 @@ def addFriend(id):
     return jsonify({'result': False, 'error': "Invalid request"}), 400
 
 @friendsRoutes.route('/delete/<id>', methods=['POST'])
-def deleteFriend():
+def deleteFriend(id):
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
         token = payload['authToken']
-        from_id = authClass.decode_jwt(token)
-        if from_id is False:
+        email = authClass.decode_jwt(token)
+        if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+        from_id = db.session.query(User).filter_by(email=email).first()
+        if from_id is None:
+            return jsonify({'result': False, 'error': 'User not found'}), 400
 
         to_id = int(id)
 
         user_to = db.session.query(User).filter_by(id=to_id).first()
-        user_from = db.session.query(User).filter_by(id=from_id).first()
+        user_from = db.session.query(User).filter_by(id=from_id.id).first()
 
         if user_to is None or user_from is None:
             return jsonify({'result': False, 'error': 'One or more user not found in the database'}), 400

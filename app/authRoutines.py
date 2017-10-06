@@ -34,13 +34,13 @@ class authBackend:
 		    # Invalid token
             return False
 
-    def decode_jwt(self, jwt):
+    def decode_jwt(self, jwtt):
         try:
-            decodeToken = jwt.decode(jwt, self.JWT_KEY, algorithms = 'HS256')
+            decodeToken = jwt.decode(jwtt, self.JWT_KEY, algorithms = 'HS256')
             return decodeToken['user']
         except jwt.ExpiredSignatureError:
             try:
-                getUsername = jwt.decode(jwt, self.JWT_KEY, algorithms = 'HS256', options = {'verify_exp' : False})
+                getUsername = jwt.decode(jwtt, self.JWT_KEY, algorithms = 'HS256', options = {'verify_exp' : False})
                 return getUsername['user']
             except:
                 return False

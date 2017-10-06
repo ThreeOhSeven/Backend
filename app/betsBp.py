@@ -43,6 +43,7 @@ def my_bets():
 
         user = models.User.query.filter(models.User.email == email)
 
+
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
