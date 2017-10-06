@@ -1,7 +1,7 @@
 from jose import jwt
 import datetime
 
-    from app.config import Config
+from app.config import Config
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -20,16 +20,16 @@ class authBackend:
         newToken = jwt.encode({'user' : self.userid, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=4)}, self.JWT_KEY, algorithm='HS256')
         return newToken
 
-    def google_check(token):
+    def google_check(self, token):
         try:
-            idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+            idinfo = id_token.verify_oauth2_token(token, requests.Request(), self.CLIENT_ID)
             if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
-				raise ValueError('Wrong issuer.')
-            userid = idinfo['sub']
+                raise ValueError('Wrong issuer.')
+            userid = idinfo['email']
             return userid
         except ValueError:
 		    # Invalid token
-			return False
+            return False
 
     def decode_jwt(self, jwt):
         try:
@@ -43,3 +43,6 @@ class authBackend:
                 return False
         except:
             return False
+
+    def check_self_email(self, email):
+        return False

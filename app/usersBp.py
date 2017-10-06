@@ -6,6 +6,7 @@ from .models import User
 
 userRoutes = Blueprint('users', __name__)
 
+from .authRoutines import *
 authClass = authBackend()
 
 @userRoutes.route('/create', methods=['POST'])
