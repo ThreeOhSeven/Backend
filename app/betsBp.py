@@ -80,10 +80,15 @@ def create_bet():
         payload = json.loads(request.data.decode())
         token = payload['authToken']
 
-        if authClass.decode_jwt(token) is False:
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+
+        if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
-            creator = payload['creator']
+            creator = user.id
             maxUsers = payload['maxUsers']
             title = payload['title']
             text = payload['description']
