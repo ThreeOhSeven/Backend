@@ -48,6 +48,7 @@ def my_bets():
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
 
+
             bets = db.session.query(models.Bets).filter_by(creator_id=user.id)
             results = []
 
