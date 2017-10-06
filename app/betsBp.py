@@ -78,7 +78,9 @@ def create_bet():
 
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
-        token = payload['authToken']
+        token = payload['betInformationRequest']['authToken']
+
+        newBet = payload['betInformationRequest']['betInformation']
 
         email = authClass.decode_jwt(token)
 
@@ -88,13 +90,13 @@ def create_bet():
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
-            print(payload)
-            ##creator = user.id
-            ##maxUsers = payload['maxUsers']
-            ##title = payload['title']
-            ##text = payload['description']
-            ##amount = payload['amount']
-            ##locked = payload['locked']
+            print(newBet)
+            creator = user.id
+            maxUsers = newBet['maxUsers']
+            title = newBet['title']
+            text = newBet['description']
+            amount = newBet['amount']
+            locked = newBet['locked']
 
             try:
                 bet = models.Bet(creator, maxUsers, title, text, amount, locked)
