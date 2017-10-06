@@ -93,6 +93,7 @@ def create_bet():
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
+
             creator = user.id
             maxUsers = newBet['maxUsers']
             title = newBet['title']
