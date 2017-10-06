@@ -58,6 +58,7 @@ def my_bets(user_id):
                 }
                 results.append(obj)
 
+
             response = jsonify({'myBets': results})
             response.status_code = 200
             return response
@@ -87,3 +88,4 @@ def my_bets():
                 return jsonify({'result': False, 'error': e.message}), 400
             bet.save()
             return jsonify({'result': True, 'error': ""}), 200
+
