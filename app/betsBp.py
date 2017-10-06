@@ -41,12 +41,12 @@ def my_bets():
 
         email = authClass.decode_jwt(token)
 
-        user_id = db.session.query(User).filter_by(email=email).first()
+        user = models.User.query.filter(models.User.email == email)
 
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
-            bets = models.Bet.query.filter(models.Bet.creator_id == user_id)
+            bets = models.Bet.query.filter(models.Bet.creator_id == user.id)
             results = []
 
             for bet in bets:
