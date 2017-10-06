@@ -49,7 +49,7 @@ def my_bets():
         else:
 
 
-            bets = db.session.query(models.Bets).filter_by(creator_id=user.id)
+            bets = db.session.query(models.Bet).filter_by(creator_id=user.id)
             results = []
 
             for bet in bets:
