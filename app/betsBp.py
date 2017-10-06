@@ -58,6 +58,32 @@ def my_bets(user_id):
                 }
                 results.append(obj)
 
-            response = jsonify({'bets': results})
+            response = jsonify({'myBets': results})
             response.status_code = 200
             return response
+
+@betRoutes.route('/createbet', methods=['POST'])
+def my_bets():
+
+    authClass = authRoutines.authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+
+        if authClass.decode_jwt(token) is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            creator = payload['creator']
+            maxUsers = payload['maxUsers']
+            title = payload['title']
+            text = payload['description']
+            amount = payload['amount']
+            locked = payload['locked']
+
+            try:
+                bet = models.Bet(creator, maxUsers, title, text, amount, locked)
+            except AssertionError as e:
+                return jsonify({'result': False, 'error': e.message}), 400
+            bet.save()
+            return jsonify({'result': True, 'error': ""}), 200
