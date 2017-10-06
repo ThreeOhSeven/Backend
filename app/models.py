@@ -10,12 +10,12 @@ class User(db.Model):
     __tablename__ = 'Users'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(32), unique=True, nullable=False)
+    username = db.Column(db.String(32), unique=True, nullable=True)
     email = db.Column(db.String(60), unique=True, nullable=False)
-    birthday = db.Column(db.DateTime, nullable=False)
+    birthday = db.Column(db.DateTime, nullable=True)
 
-    friend_to = db.relationship('Friend', backref='to', primaryjoin='User.id==Friend.user_to')
-    friend_from = db.relationship('Friend', backref='from', primaryjoin='User.id==Friend.user_from')
+    # friend_to = db.relationship('Friend', backref='to', primaryjoin='User.id==Friend.user_to')
+    # friend_from = db.relationship('Friend', backref='from', primaryjoin='User.id==Friend.user_from')
 
     def __init__(self, username, email, birthday):
         self.username = username
@@ -24,7 +24,7 @@ class User(db.Model):
 
     @validates('username')
     def validate_username(self, key, username):
-        assert db.session.query(User).filter_by(username=username) is not None, "Username taken"
+        assert db.session.query(User).filter_by(username=username).first() is not None, "Username taken"
         return username
 
     @validates('email')
@@ -34,7 +34,7 @@ class User(db.Model):
 
     @validates('birthday')
     def validate_birthday(self, key, birthday):
-        assert datetime.strptime(birthday, '%Y/%m/%d'), "Invalid date"
+        # assert datetime.strptime(birthday, '%Y/%m/%d'), "Invalid date"
         return birthday
 
 

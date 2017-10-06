@@ -6,6 +6,9 @@ from app.config import Config
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
+from app import db
+from .models import User
+
 class authBackend:
 
     def __init__(self, userid = None):
@@ -45,4 +48,19 @@ class authBackend:
             return False
 
     def check_self_email(self, email):
+        existUser = db.session.query(User).filter_by(email=email).first()
+        if existUser is not None:
+            return True
+        return False
+
+    def create_new_user(self, email):
+        username = None
+        birthday = None
+        try:
+            user = User(username, email, birthday)
+            db.session.add(user)
+            db.session.commit()
+            return True
+        except AssertionError as e:
+            return False
         return False
