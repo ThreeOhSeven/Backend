@@ -3,7 +3,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-
 from app.config import app_config
 
 # db variable initialization
@@ -21,7 +20,7 @@ def create_app(config_name):
     migrate = Migrate(app, db)
 
     from .usersBp import userRoutes as user_blueprint
-    app.register_blueprint(user_blueprint, url_prefix='/account')
+    app.register_blueprint(user_blueprint)
 
     from .betsBp import betRoutes as bets_blueprint
     app.register_blueprint(bets_blueprint)
