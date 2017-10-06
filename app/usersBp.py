@@ -51,14 +51,22 @@ def editInfo():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
         token = payload['authToken']
-        if authClass.decode_jwt(token) is False:
+        #print(token)
+        email = authClass.decode_jwt(token)
+        if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+        user = db.session.query(User).filter_by(email=email).first()
+        if user is None:
+            return jsonify({'result': False, 'error': "User does not exist"}), 400
+
         accountInfo = payload['accountInformation']
-        user = db.session.query(User).filter_by(id=accountInfo['id']).first()
+
+        user = db.session.query(User).filter_by(id=user.id).first()
         try:
             user.username = accountInfo['username']
-            user.email = accountInfo['email']
-            user.birthday = accountInfo['birthday']
+            #user.email = accountInfo['email']
+            #user.birthday = accountInfo['birthday']
             db.session.commit()
         except AssertionError as e:
             return jsonify({'result': False, 'error': e.message}), 400
