@@ -81,8 +81,6 @@ def create_bet():
 
         print(payload)
 
-        token = payload['betInformationRequest']['authToken']
-
 
         token = payload['authToken']
 
