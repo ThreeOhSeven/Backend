@@ -33,10 +33,11 @@ def getInfo():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
         token = payload['authToken']
-        id = authClass.decode_jwt(token)
-        if id is False:
+        email = authClass.decode_jwt(token)
+        if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
-        user = db.session.query(User).filter_by(id=id).first()
+
+        user = db.session.query(User).filter_by(email=email).first()
         if user is None:
             return jsonify({'result': False, 'error': "User does not exist"}), 400
         return jsonify({'result': True, 'error': "",
@@ -68,10 +69,11 @@ def editInfo():
 def deleteUser():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
-        id = authClass.decode_jwt(token)
-        if id is False:
+        token = payload['authToken']
+        email = authClass.decode_jwt(token)
+        if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
-        user = db.session.query(User).filter_by(id=id).first()
+        user = db.session.query(User).filter_by(email=email).first()
         if user is None:
             return jsonify({'result': False, 'error': 'User does not exist'}), 400
         db.session.delete(user)
