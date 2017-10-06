@@ -3,7 +3,7 @@ from flask import request, jsonify, abort, Blueprint
 import requests
 import json
 from app import models
-from app import authRoutines
+from .authRoutines import *
 
 betRoutes = Blueprint('betsBp', __name__)
 
@@ -33,13 +33,14 @@ def public_feed():
 @betRoutes.route('/mybets/<int:user_id>', methods=['POST'])
 def my_bets(user_id):
 
-    authClass = authRoutines.authBackend()
+    authClass = authBackend()
 
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
         token = payload['authToken']
 
-        if authClass.decode_jwt(token) is False:
+        email = authClass.decode_jwt(token)
+        if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
             bets = models.Bet.query.filter(models.Bet.creator_id == user_id)
