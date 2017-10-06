@@ -64,7 +64,7 @@ def my_bets(user_id):
             return response
 
 @betRoutes.route('/createbet', methods=['POST'])
-def my_bets():
+def create_bet():
 
     authClass = authRoutines.authBackend()
 
