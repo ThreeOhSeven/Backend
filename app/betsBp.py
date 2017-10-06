@@ -98,6 +98,7 @@ def create_bet():
             amount = newBet['amount']
             locked = newBet['locked']
 
+
             try:
                 bet = models.Bet(creator, maxUsers, title, text, amount, locked)
             except AssertionError as e:
