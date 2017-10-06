@@ -41,8 +41,8 @@ def my_bets():
 
         email = authClass.decode_jwt(token)
 
-        user = models.User.query.filter(models.User.email == email)
 
+        user = models.User.query.filter(models.User.email == email)
 
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
