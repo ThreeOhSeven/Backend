@@ -90,7 +90,7 @@ class Bet(db.Model):
     __tablename__ = 'Bets'
 
     id = db.Column(db.Integer, primary_key=True)
-    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    creator_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     max_users = db.Column(db.String(60))
     title = db.Column(db.String(60), nullable=False)
     text = db.Column(db.String(255))
@@ -133,10 +133,10 @@ class BetUsers(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    bet_id = db.Column(db.Integer, db.ForeignKey('bet.id'),
+    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'),
                        nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'),
                        nullable=False)
 
 
