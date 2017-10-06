@@ -2,9 +2,6 @@ from flask import Blueprint, session, jsonify, request, render_template, session
 import requests
 import json
 
-from app import db
-from .models import User
-
 from .authRoutines import *
 
 authRoutes = Blueprint('authBp', __name__)
@@ -31,15 +28,5 @@ def checkLogin():
 			if not addSuc:
 				print("user not added")
 		newToken = authClass.generateNewToken()
-		username = None
-		email = payload['email']
-		birthday = None
-		try:
-			user = User(username, email, birthday)
-		except AssertionError as e:
-			return jsonify({'result': False, 'error': e.message}), 400
-		db.session.add(user)
-		db.session.commit()
-
 		return jsonify({'result' : True, 'selfToken' : newToken})
 	return jsonify({'result' : False, 'error' : "Invalid request"})

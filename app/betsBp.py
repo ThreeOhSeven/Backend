@@ -3,7 +3,7 @@ from flask import request, jsonify, abort, Blueprint
 import requests
 import json
 from app import models
-from app import authRoutines
+from .authRoutines import *
 
 betRoutes = Blueprint('betsBp', __name__)
 
@@ -30,19 +30,26 @@ def public_feed():
     return response
 
 
-@betRoutes.route('/mybets/<int:user_id>', methods=['POST'])
-def my_bets(user_id):
+@betRoutes.route('/mybets', methods=['POST'])
+def my_bets():
 
-    authClass = authRoutines.authBackend()
+    authClass = authBackend()
 
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
         token = payload['authToken']
 
-        if authClass.decode_jwt(token) is False:
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+
+        if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
-            bets = models.Bet.query.filter(models.Bet.creator_id == user_id)
+
+
+            bets = db.session.query(models.Bets).filter_by(creator_id=user.id)
             results = []
 
             for bet in bets:
@@ -63,19 +70,25 @@ def my_bets(user_id):
             response.status_code = 200
             return response
 
+
 @betRoutes.route('/createbet', methods=['POST'])
 def create_bet():
 
-    authClass = authRoutines.authBackend()
+    authClass = authBackend()
 
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
         token = payload['authToken']
 
-        if authClass.decode_jwt(token) is False:
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+
+        if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
-            creator = payload['creator']
+            creator = user.id
             maxUsers = payload['maxUsers']
             title = payload['title']
             text = payload['description']
