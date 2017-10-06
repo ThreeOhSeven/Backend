@@ -77,6 +77,8 @@ class BetUsers(db.Model):
 
     __tablename__ = 'BetUsers'
 
+    id = db.Column(db.Integer, primary_key=True)
+
     bet_id = db.Column(db.Integer, db.ForeignKey('bet.id'),
                        nullable=False)
 
