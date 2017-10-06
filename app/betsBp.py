@@ -67,7 +67,7 @@ def my_bets(user_id):
 @betRoutes.route('/createbet', methods=['POST'])
 def create_bet():
 
-    authClass = authRoutines.authBackend()
+    authClass = authBackend()
 
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
