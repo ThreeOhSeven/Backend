@@ -79,6 +79,10 @@ def create_bet():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
 
+        print(payload)
+
+        token = payload['betInformationRequest']['authToken']
+
 
         token = payload['authToken']
 
