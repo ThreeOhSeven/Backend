@@ -88,12 +88,13 @@ def create_bet():
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
-            creator = user.id
-            maxUsers = payload['maxUsers']
-            title = payload['title']
-            text = payload['description']
-            amount = payload['amount']
-            locked = payload['locked']
+            print(payload)
+            ##creator = user.id
+            ##maxUsers = payload['maxUsers']
+            ##title = payload['title']
+            ##text = payload['description']
+            ##amount = payload['amount']
+            ##locked = payload['locked']
 
             try:
                 bet = models.Bet(creator, maxUsers, title, text, amount, locked)
