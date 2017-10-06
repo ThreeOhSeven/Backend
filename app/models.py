@@ -10,9 +10,9 @@ class User(db.Model):
     __tablename__ = 'Users'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(32), unique=True, nullable=False)
+    username = db.Column(db.String(32), unique=True, nullable=True)
     email = db.Column(db.String(60), unique=True, nullable=False)
-    birthday = db.Column(db.DateTime, nullable=False)
+    birthday = db.Column(db.DateTime, nullable=True)
 
     bets_created = db.relationship('Bets', backref='user', lazy=True)
 
@@ -28,7 +28,7 @@ class User(db.Model):
 
     @validates('username')
     def validate_username(self, key, username):
-        assert db.session.query(User).filter_by(username=username) is not None, "Username taken"
+        assert db.session.query(User).filter_by(username=username).first() is not None, "Username taken"
         return username
 
     @validates('email')
@@ -38,12 +38,40 @@ class User(db.Model):
 
     @validates('birthday')
     def validate_birthday(self, key, birthday):
-        assert datetime.strptime(birthday, '%Y/%m/%d'), "Invalid date"
+        # assert datetime.strptime(birthday, '%Y/%m/%d'), "Invalid date"
         return birthday
 
 
     def __repr__(self):
         return '<User id: {}, Username: {}, Email: {}, Birthday: {}>'.format(self.id, self.username, self.email, self.birthday)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+class Friend(db.Model):
+    """
+        Create the Friends table
+    """
+
+    __tablename__ = 'Friends'
+
+    user_to = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
+    user_from = db.Column(db.Integer, db.ForeignKey(User.id), primary_key=True)
+    status = db.Column(db.Integer)
+
+    def __init__(self, user_to, user_from, status):
+        self.user_to = user_to
+        self.user_from = user_from
+        self.status = status
+
+    def __repr__(self):
+        return "user_to: {}, user_from {}, stats: {}".format(self.user_to, self.user_from, self.status)
 
     def save(self):
         db.session.add(self)

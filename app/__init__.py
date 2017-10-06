@@ -22,6 +22,9 @@ def create_app(config_name):
     from .usersBp import userRoutes as user_blueprint
     app.register_blueprint(user_blueprint)
 
+    from .friendsBp import friendsRoutes as friends_blueprint
+    app.register_blueprint(friends_blueprint, url_prefix='/friends')
+
     from .betsBp import betRoutes as bets_blueprint
     app.register_blueprint(bets_blueprint)
 
