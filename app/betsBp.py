@@ -47,8 +47,8 @@ def my_bets():
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
-            bets = db.session.query().filter_by()
-            bets = models.Bet.query.filter(models.Bet.creator_id == user.id)
+
+            bets = models.Bet.query.filter_by(models.Bet.creator_id == user.id)
             results = []
 
             for bet in bets:
@@ -68,6 +68,7 @@ def my_bets():
             response = jsonify({'myBets': results})
             response.status_code = 200
             return response
+
 
 @betRoutes.route('/createbet', methods=['POST'])
 def create_bet():
