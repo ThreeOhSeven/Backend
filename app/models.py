@@ -14,7 +14,7 @@ class User(db.Model):
     email = db.Column(db.String(60), unique=True, nullable=False)
     birthday = db.Column(db.DateTime, nullable=True)
 
-    bets_created = db.relationship('Bets', backref='user', lazy=True)
+    bets_created = db.relationship('Bet', backref='user', lazy=True)
 
     bets_in = db.relationship('BetUsers', backref='user', lazy=True)
 
