@@ -7,12 +7,15 @@ class User(db.Model):
          Create the Users table
     """
 
-    __tabelname_ = 'Users'
+    __tablename__ = 'Users'
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), unique=True, nullable=False)
     email = db.Column(db.String(60), unique=True, nullable=False)
     birthday = db.Column(db.DateTime, nullable=False)
+
+    friend_to = db.relationship('Friend', backref='to', primaryjoin='User.id==Friend.user_to')
+    friend_from = db.relationship('Friend', backref='from', primaryjoin='User.id==Friend.user_from')
 
     def __init__(self, username, email, birthday):
         self.username = username
