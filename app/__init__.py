@@ -34,5 +34,8 @@ def create_app(config_name):
     from .likesBp import likeRoutes as likes_blueprint
     app.register_blueprint(likes_blueprint)
 
+    from .transactionBp import transactionRoutes as transaction_routes
+    app.register_blueprint(transaction_routes, url_prefix='/transaction')
+
 
     return app
