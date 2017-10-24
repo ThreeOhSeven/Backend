@@ -31,5 +31,8 @@ def create_app(config_name):
     from .authBp import authRoutes as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
+    from .likesBp import likeRoutes as likes_blueprint
+    app.register_blueprint(likes_blueprint)
+
 
     return app
