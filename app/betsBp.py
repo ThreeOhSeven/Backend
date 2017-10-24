@@ -81,14 +81,11 @@ def create_bet():
 
         print(payload)
 
-
         token = payload['authToken']
-
 
         email = authClass.decode_jwt(token)
 
         user = db.session.query(models.User).filter_by(email=email).first()
-
 
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400

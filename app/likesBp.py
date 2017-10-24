@@ -8,6 +8,8 @@ from .authRoutines import *
 likeRoutes = Blueprint('likesBp', __name__)
 
 
+# {authToken: xxxx, like: 0, betId: xxxx}
+# {authToken: xxxx, like: 1, betId: xxxx}
 @likeRoutes.route('/like/update', methods=['POST'])
 def like_update():
     authClass = authBackend()

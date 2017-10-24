@@ -5,7 +5,8 @@ import app
 from app.models import User
 from app import db
 
-class UserBp_Tests(unittest.TestCase):
+
+class likesBpTests(unittest.TestCase):
     def setUp(self):
         client = app.create_app("development")
         client.testing = True
