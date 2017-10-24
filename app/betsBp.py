@@ -71,7 +71,7 @@ def my_bets():
             return response
 
 
-@betRoutes.route('/createbet', methods=['POST'])
+@betRoutes.route('/bets/create', methods=['POST'])
 def create_bet():
 
     authClass = authBackend()
@@ -80,7 +80,6 @@ def create_bet():
         payload = json.loads(request.data.decode())
 
         print(payload)
-
 
         token = payload['authToken']
 
