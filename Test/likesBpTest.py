@@ -1,6 +1,11 @@
 import unittest
 import requests
 import json
+import os, sys
+
+topdir = os.path.join(os.path.dirname(__file__), "..")
+sys.path.append(topdir)
+
 import app
 from app.models import Likes
 from app import db
