@@ -39,9 +39,15 @@ def like_update():
                         like.save()
 
                         return jsonify({'result': True, 'success': 'Like Created'}), 200
+                    else:
+                        return jsonify({'result': True, 'success': 'Like Already in DB'}), 200
                 else:
 
                     if like is not None:
                         db.session.delete(like)
 
                         return jsonify({'result': True, 'success': 'Like Removed'}), 200
+                    else:
+                        return jsonify({'result': True, 'success': 'Like Did not Exist'}), 200
+    else:
+        return jsonify({'result': True, 'Fail': 'Use POST'}), 400
