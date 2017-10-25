@@ -7,7 +7,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 
 from app import db
-from .models import User
+from .models import User, Transactions
 
 class authBackend:
 
@@ -60,6 +60,7 @@ class authBackend:
             user = User(username, email, birthday)
             db.session.add(user)
             db.session.commit()
+            startBalance = Transactions(user.id, 0)
             return True
         except AssertionError as e:
             return False

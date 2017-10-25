@@ -90,7 +90,7 @@ def deleteUser():
         return jsonify({'result': True, 'error': ''}), 200
     return jsonify({'result': False, 'error': "Invalid request"}), 400
 
-@userRoutes.route('/get', methods=['POST'])
+@userRoutes.route('/users/get/id', methods=['POST'])
 def getIdByEmail():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
@@ -107,7 +107,7 @@ def getIdByEmail():
 
     return jsonify({'result': False, 'error': "Invalid request"}), 400
 
-@userRoutes.route('/getid', methods=['POST'])
+@userRoutes.route('/users/get/email', methods=['POST'])
 def getEmailById():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())

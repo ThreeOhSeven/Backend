@@ -11,50 +11,54 @@ authClass = authBackend()
 
 @friendsRoutes.route('/', methods=['POST'])
 def getFriends():
-    if request.method == 'POST':
-        payload = json.loads(request.data.decode())
-        token = payload['authToken']
-        email = authClass.decode_jwt(token)
-        if email is False:
-            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+    if request.method != 'POST':
+        return jsonify({'result': False, 'error': "Invalid request"}), 400
 
-        user = db.session.query(User).filter_by(email=email).first()
+    # Get the user's email based on the 'authToken'
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+    email = authClass.decode_jwt(token)
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+    # Query the user table based on the email
+    user = db.session.query(User).filter_by(email=email).first()
+
+    if user is None:
+        return jsonify({'result': False, 'error': 'User not found'}), 400
+
+    id = user.id
+
+    # Query both columns to find all friend pairs containing the given id
+    friends_to = db.session.query(Friend).filter_by(user_to=id).all()
+    friends_from = db.session.query(Friend).filter_by(user_from=id).all()
+
+    friends = friends_to + friends_from
+
+    # Create and format a list of friends to send as a response
+    results = []
+    for friend in friends:
+        if friend.user_to == id:
+            user = db.session.query(User).filter_by(id=friend.user_from).first()
+        else:
+            user = db.session.query(User).filter_by(id=friend.user_to).first()
 
         if user is None:
             return jsonify({'result': False, 'error': 'User not found'}), 400
 
-        # friends = db.session.query(Friend).filter(or_(Friend.user_to == id, Friend.user_from == id))
-
-        id = user.id
-
-        friends_to = db.session.query(Friend).filter_by(user_to=id).all()
-        friends_from = db.session.query(Friend).filter_by(user_from=id).all()
-
-        friends = friends_to + friends_from
-
-        results = []
-        for friend in friends:
-            if friend.user_to == id:
-                user = db.session.query(User).filter_by(id=friend.user_from).first()
-            else:
-                user = db.session.query(User).filter_by(id=friend.user_to).first()
-
-            if user is None:
-                return jsonify({'result': False, 'error': 'User not found'}), 400
-
-            obj = {
-                'status': friend.status,
-                'friend': {
-                    'id': user.id,
-                    'username': user.username,
-                    'email': user.email,
-                    'birthday': user.birthday
-                }
+        obj = {
+            'status': friend.status,
+            'friend': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'birthday': user.birthday
             }
-            results.append(obj)
-        return jsonify({'friends_obj': results}), 200
+        }
+        results.append(obj)
+    return jsonify({'friends_obj': results}), 200
 
-    return jsonify({'result': False, 'error': "Invalid request"}), 400
+
 
 @friendsRoutes.route('/add/<id>', methods=['POST'])
 def addFriend(id):

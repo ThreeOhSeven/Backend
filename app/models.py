@@ -162,3 +162,31 @@ class BetUsers(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+class Transactions(db.Model):
+
+    __tablename__ = 'Transactions'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    current_balance = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, user_id, current_balance):
+        self.user_id = user_id
+        self.current_balance = current_balance
+
+    def __repr__(self):
+        return '<Transactions id: {}>'.format(self.id)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_all():
+        return Transactions.query.all()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
