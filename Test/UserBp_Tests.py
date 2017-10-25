@@ -12,6 +12,7 @@ birthday = "1990/01/01"
 class UserBp_Tests(unittest.TestCase):
     def setUp(self):
         client = app.create_app("development")
+        app.config.from_pyfile('config.py')
         client.testing = True
         self.app = client.test_client()
 
