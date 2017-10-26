@@ -20,8 +20,12 @@ class User(db.Model):
     bets_in = db.relationship('BetUsers', backref='user', lazy=True,
                               cascade='all, delete-orphan')
 
+    bets_liked = db.relationship('Likes', backref='user', lazy=True,
+                                 cascade='all, delete-orphan')
+
     friend_to = db.relationship('Friend', backref='to', primaryjoin='User.id==Friend.user_to',
                                 cascade="all, delete-orphan")
+
     friend_from = db.relationship('Friend', backref='from', primaryjoin='User.id==Friend.user_from',
                                   cascade="all, delete-orphan")
 
@@ -163,6 +167,44 @@ class BetUsers(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+
+class Likes(db.Model):
+    """
+        Create the Likes table
+    """
+
+    __tablename__ = 'Likes'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'),
+                       nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'),
+                       nullable=False)
+
+
+
+    def __init__(self, bet_id, user_id):
+        self.bet_id = bet_id
+        self.user_id = user_id
+
+    def __repr__(self):
+        return '<Like id: {}>'.format(self.id)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_all():
+        return Likes.query.all()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
 class Transactions(db.Model):
 
     __tablename__ = 'Transactions'
@@ -179,6 +221,7 @@ class Transactions(db.Model):
     def __repr__(self):
         return '<Transactions id: {}>'.format(self.id)
 
+
     def save(self):
         db.session.add(self)
         db.session.commit()
@@ -186,6 +229,7 @@ class Transactions(db.Model):
     @staticmethod
     def get_all():
         return Transactions.query.all()
+
 
     def delete(self):
         db.session.delete(self)

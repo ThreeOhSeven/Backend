@@ -15,13 +15,16 @@ def public_feed():
     results = []
 
     for bet in bets:
+        count = models.Likes.query.filter_by(bet_id=bet.id).count()
+
         obj = {
             'id': bet.id,
             'max_users': bet.max_users,
             'title': bet.title,
             'text': bet.text,
             'amount': bet.amount,
-            'completed': bet.completed
+            'completed': bet.completed,
+            'like_count': count
         }
         results.append(obj)
 
@@ -83,11 +86,9 @@ def create_bet():
 
         token = payload['authToken']
 
-
         email = authClass.decode_jwt(token)
 
         user = db.session.query(models.User).filter_by(email=email).first()
-
 
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
