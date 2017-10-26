@@ -196,3 +196,28 @@ def edit_bet():
 
                 return jsonify({'result': True, 'success': "Bet updated successfully"}), 200
 
+
+@betRoutes.route('/bets/join', methods=['POST'])
+def join_bet():
+
+    authClass = authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            bet_id = payload['betId']
+
+            betUser = models.BetUsers(bet_id=bet_id, user_id=user.id)
+
+            betUser.save()
+
+
+
