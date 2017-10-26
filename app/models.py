@@ -99,7 +99,7 @@ class Bet(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
-    max_users = db.Column(db.String(60))
+    max_users = db.Column(db.Integer)
     title = db.Column(db.String(60), nullable=False)
     description = db.Column(db.String(255))
     amount = db.Column(db.Integer, nullable=False)
