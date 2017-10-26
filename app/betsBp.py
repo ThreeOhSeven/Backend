@@ -8,29 +8,58 @@ from .authRoutines import *
 betRoutes = Blueprint('betsBp', __name__)
 
 
-@betRoutes.route('/publicfeed', methods=['GET'])
+@betRoutes.route('/publicfeed', methods=['POST'])
 def public_feed():
-    # GET
-    bets = models.Bet.get_all()
-    results = []
 
-    for bet in bets:
-        count = models.Likes.query.filter_by(bet_id=bet.id).count()
+    authClass = authBackend()
 
-        obj = {
-            'id': bet.id,
-            'max_users': bet.max_users,
-            'title': bet.title,
-            'text': bet.text,
-            'amount': bet.amount,
-            'completed': bet.completed,
-            'like_count': count
-        }
-        results.append(obj)
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
 
-    response = jsonify({'bets': results})
-    response.status_code = 200
-    return response
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+
+            bets = models.Bet.get_all()
+            results = []
+
+            for bet in bets:
+
+                # Get like count
+                count = models.Likes.query.filter_by(bet_id=bet.id).count()
+
+                # Get if the current user liked the bet
+                like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+
+                if count is 1:
+                    liked = True
+                else:
+                    liked = False
+
+                # Make JSONObject to return
+                obj = {
+                    'id': bet.id,
+                    'creator_id': bet.creator_id,
+                    'max_users': bet.max_users,
+                    'title': bet.title,
+                    'description': bet.description,
+                    'amount': bet.amount,
+                    'winner': bet.winner,
+                    'locked': bet.locked,
+                    'complete': bet.complete,
+                    'num_likes': count,
+                    'liked': liked
+                }
+                results.append(obj)
+
+            response = jsonify({'bets': results})
+            response.status_code = 200
+            return response
 
 
 @betRoutes.route('/mybets', methods=['POST'])

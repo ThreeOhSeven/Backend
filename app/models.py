@@ -107,7 +107,9 @@ class Bet(db.Model):
     locked = db.Column(db.Boolean, default=False, nullable=False)
     complete = db.Column(db.Boolean, default=False, nullable=False)
 
+    # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
+    likes = db.relationship('Likes', backref='bet', lazy=True)
 
     def __init__(self, creator_id, max_users, title, text, amount, locked):
         self.creator_id = creator_id
