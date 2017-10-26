@@ -101,10 +101,11 @@ class Bet(db.Model):
     creator_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     max_users = db.Column(db.String(60))
     title = db.Column(db.String(60), nullable=False)
-    text = db.Column(db.String(255))
+    description = db.Column(db.String(255))
     amount = db.Column(db.Integer, nullable=False)
-    completed = db.Column(db.Boolean, default=False, nullable=False)
+    winner = db.Column(db.Boolean)
     locked = db.Column(db.Boolean, default=False, nullable=False)
+    complete = db.Column(db.Boolean, default=False, nullable=False)
 
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
 
