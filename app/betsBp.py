@@ -68,7 +68,6 @@ def public_feed():
 
 @betRoutes.route('/mybets', methods=['POST'])
 def my_bets():
-
     authClass = authBackend()
 
     if request.method == 'POST':
@@ -79,30 +78,46 @@ def my_bets():
 
         user = db.session.query(models.User).filter_by(email=email).first()
 
-
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
 
-
-            bets = db.session.query(models.Bet).filter_by(creator_id=user.id)
+            bets = models.Bet.query.filter_by(user_id=user.id).all()
             results = []
 
             for bet in bets:
+
+                # Get like count
+                count = models.Likes.query.filter_by(bet_id=bet.id).count()
+                print(count)
+
+                # Get if the current user liked the bet
+                like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+
+                if count is 1:
+                    liked = True
+                else:
+                    liked = False
+
+                print(liked)
+
+                # Make JSONObject to return
                 obj = {
                     'id': bet.id,
-                    'creator': bet.creator_id,
+                    'creator_id': bet.creator_id,
                     'max_users': bet.max_users,
                     'title': bet.title,
-                    'description': bet.text,
+                    'description': bet.description,
                     'amount': bet.amount,
-                    'winner': 'Test',
-                    'locked': bet.locked
+                    'winner': bet.winner,
+                    'locked': bet.locked,
+                    'complete': bet.complete,
+                    'num_likes': count,
+                    'liked': liked
                 }
                 results.append(obj)
 
-
-            response = jsonify({'myBets': results})
+            response = jsonify({'bets': results})
             response.status_code = 200
             return response
 
