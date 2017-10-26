@@ -109,3 +109,42 @@ def create_bet():
             bet.save()
             return jsonify({'result': True, 'error': ""}), 200
 
+
+@betRoutes.route('/bets/edit', methods=['POST'])
+def edit_bet():
+
+    authClass = authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+
+        print(payload)
+
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            bet = models.Bet.query.filter_by(bet_id=payload['betId']).first()
+
+            if bet is None:
+                return jsonify({'result': False, 'error': 'Bet does not exist'}), 400
+            else:
+                bet.creator = user.id
+                bet.maxUsers = payload['maxUsers']
+                bet.title = payload['title']
+                bet.text = payload['description']
+                bet.amount = payload['amount']
+                bet.locked = payload['locked']
+
+                try:
+                    db.session.commit()
+                except AssertionError as e:
+                    return jsonify({'result': False, 'error': e.message}), 400
+
+                return jsonify({'result': True, 'success': "Bet updated successfully"}), 200
+
