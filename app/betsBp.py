@@ -32,14 +32,18 @@ def public_feed():
 
                 # Get like count
                 count = models.Likes.query.filter_by(bet_id=bet.id).count()
+                print(count)
 
                 # Get if the current user liked the bet
                 like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+
 
                 if count is 1:
                     liked = True
                 else:
                     liked = False
+
+                print(liked)
 
                 # Make JSONObject to return
                 obj = {
