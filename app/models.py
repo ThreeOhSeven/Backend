@@ -1,6 +1,4 @@
 from app import db
-from sqlalchemy.orm import validates
-from datetime import datetime
 
 class User(db.Model):
     """
@@ -29,22 +27,6 @@ class User(db.Model):
         self.username = username
         self.email = email
         self.birthday = birthday
-
-    @validates('username')
-    def validate_username(self, key, username):
-        #assert db.session.query(User).filter_by(username=username).first() is not None, "Username taken"
-        return username
-
-    @validates('email')
-    def validate_email(self, key, email):
-        #assert '@' in email, 'Invalid email'
-        return email
-
-    @validates('birthday')
-    def validate_birthday(self, key, birthday):
-        # assert datetime.strptime(birthday, '%Y/%m/%d'), "Invalid date"
-        return birthday
-
 
     def __repr__(self):
         return '<User id: {}, Username: {}, Email: {}, Birthday: {}>'.format(self.id, self.username, self.email, self.birthday)
@@ -75,7 +57,7 @@ class Friend(db.Model):
         self.status = status
 
     def __repr__(self):
-        return "user_to: {}, user_from {}, stats: {}".format(self.user_to, self.user_from, self.status)
+        return "user_to: {}, user_from {}, status: {}".format(self.user_to, self.user_from, self.status)
 
     def save(self):
         db.session.add(self)
