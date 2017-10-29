@@ -7,6 +7,7 @@ from .authRoutines import *
 
 betRoutes = Blueprint('betsBp', __name__)
 
+authClass = authBackend()
 
 ######## Public Feed ########
 @betRoutes.route('/publicfeed', methods=['POST'])
@@ -287,6 +288,39 @@ def join_bet():
             betUser = models.BetUsers(bet_id=bet_id, user_id=user.id)
 
             betUser.save()
+
+
+######## Send Bet ########
+@betRoutes.route('/bets/send', methods=['POST'])
+def send_bet():
+    if request.method != 'POST':
+        return jsonify({'result': False, 'error': "Invalid request"}), 400
+
+    # Get the user's email based on the 'authToken'
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+    betID = payload['betID']
+    id = payload['id']
+
+    if authClass.decode_jwt(token) is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+    user = db.session.query(models.User).filter_by(id=id).first()
+    bet = db.session.query(models.Bet).filter_by(id=betID).first()
+
+    if user is None:
+        return jsonify({'result': False, 'error': 'User not found'}), 400
+
+    if bet is None:
+        return jsonify({'result': False, 'error': 'Bet not found'}), 400
+
+    newBetUser = models.BetUsers(bet_id=bet.id, user_id=user.id)
+    db.session.add(newBetUser)
+    db.session.commit()
+
+    return jsonify({'result': True, 'error': ''}), 200
+
+
 
 
 
