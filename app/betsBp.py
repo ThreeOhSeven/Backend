@@ -42,6 +42,15 @@ def public_feed():
                 else:
                     liked = False
 
+                # Get users in bet
+                bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+                users = []
+
+                for bet_user in bet_users:
+                    user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                    users.append(user)
+
                 # Make JSONObject to return
                 obj = {
                     'id': bet.id,
@@ -54,7 +63,8 @@ def public_feed():
                     'locked': bet.locked,
                     'complete': bet.complete,
                     'num_likes': count,
-                    'liked': liked
+                    'liked': liked,
+                    'users': users
                 }
                 results.append(obj)
 
