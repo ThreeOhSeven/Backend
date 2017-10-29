@@ -33,7 +33,6 @@ def public_feed():
 
                 # Get like count
                 count = models.Likes.query.filter_by(bet_id=bet.id).count()
-                print(count)
 
                 # Get if the current user liked the bet
                 like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
@@ -42,8 +41,6 @@ def public_feed():
                     liked = True
                 else:
                     liked = False
-
-                print(liked)
 
                 # Make JSONObject to return
                 obj = {
@@ -92,7 +89,6 @@ def private_feed():
 
                 # Get like count
                 count = models.Likes.query.filter_by(bet_id=bet.id).count()
-                print(count)
 
                 # Get if the current user liked the bet
                 like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
@@ -101,8 +97,6 @@ def private_feed():
                     liked = True
                 else:
                     liked = False
-
-                print(liked)
 
                 # Make JSONObject to return
                 obj = {
@@ -222,7 +216,6 @@ def my_open_bets():
 
                     # Get like count
                     count = models.Likes.query.filter_by(bet_id=bet.id).count()
-                    print(count)
 
                     # Get if the current user liked the bet
                     like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
@@ -231,8 +224,6 @@ def my_open_bets():
                         liked = True
                     else:
                         liked = False
-
-                    print(liked)
 
                     # Make JSONObject to return
                     obj = {
@@ -344,7 +335,7 @@ def my_pending_bets():
 
                     # Get like count
                     count = models.Likes.query.filter_by(bet_id=bet.id).count()
-                    print(count)
+
 
                     # Get if the current user liked the bet
                     like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
@@ -354,7 +345,6 @@ def my_pending_bets():
                     else:
                         liked = False
 
-                    print(liked)
 
                     # Make JSONObject to return
                     obj = {
