@@ -18,8 +18,12 @@ class User(db.Model):
     bets_in = db.relationship('BetUsers', backref='user', lazy=True,
                               cascade='all, delete-orphan')
 
+    bets_liked = db.relationship('Likes', backref='user', lazy=True,
+                                 cascade='all, delete-orphan')
+
     friend_to = db.relationship('Friend', backref='to', primaryjoin='User.id==Friend.user_to',
                                 cascade="all, delete-orphan")
+
     friend_from = db.relationship('Friend', backref='from', primaryjoin='User.id==Friend.user_from',
                                   cascade="all, delete-orphan")
 
@@ -77,14 +81,17 @@ class Bet(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
-    max_users = db.Column(db.String(60))
+    max_users = db.Column(db.Integer)
     title = db.Column(db.String(60), nullable=False)
-    text = db.Column(db.String(255))
+    description = db.Column(db.String(255))
     amount = db.Column(db.Integer, nullable=False)
-    completed = db.Column(db.Boolean, default=False, nullable=False)
+    winner = db.Column(db.Boolean)
     locked = db.Column(db.Boolean, default=False, nullable=False)
+    complete = db.Column(db.Boolean, default=False, nullable=False)
 
+    # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
+    likes = db.relationship('Likes', backref='bet', lazy=True)
 
     def __init__(self, creator_id, max_users, title, text, amount, locked):
         self.creator_id = creator_id
@@ -140,6 +147,74 @@ class BetUsers(db.Model):
     @staticmethod
     def get_all():
         return BetUsers.query.all()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+class Likes(db.Model):
+    """
+        Create the Likes table
+    """
+
+    __tablename__ = 'Likes'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'),
+                       nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'),
+                       nullable=False)
+
+
+
+    def __init__(self, bet_id, user_id):
+        self.bet_id = bet_id
+        self.user_id = user_id
+
+    def __repr__(self):
+        return '<Like id: {}>'.format(self.id)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_all():
+        return Likes.query.all()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+class Transactions(db.Model):
+
+    __tablename__ = 'Transactions'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    current_balance = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, user_id, current_balance):
+        self.user_id = user_id
+        self.current_balance = current_balance
+
+    def __repr__(self):
+        return '<Transactions id: {}>'.format(self.id)
+
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_all():
+        return Transactions.query.all()
+
 
     def delete(self):
         db.session.delete(self)

@@ -85,7 +85,6 @@ def deleteUser():
 
     return jsonify({'result': True, 'error': ''}), 200
 
-
 @userRoutes.route('/users/get/id', methods=['POST'])
 def getIdByEmail():
     if request.method != 'POST':
