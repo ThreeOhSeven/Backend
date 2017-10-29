@@ -106,6 +106,7 @@ class Bet(db.Model):
     winner = db.Column(db.Boolean)
     locked = db.Column(db.Boolean, default=False, nullable=False)
     complete = db.Column(db.Boolean, default=False, nullable=False)
+    pot = db.Column(db.Integer, nullable=False, default=0)
 
     # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
@@ -149,6 +150,8 @@ class BetUsers(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'),
                        nullable=False)
+
+    active = db.Column(db.Boolean, nullable=False, default=False)
 
 
     def __init__(self, bet_id, user_id):

@@ -38,7 +38,6 @@ def public_feed():
                 # Get if the current user liked the bet
                 like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
 
-
                 if count is 1:
                     liked = True
                 else:
@@ -121,9 +120,11 @@ def private_feed():
                 }
                 results.append(obj)
 
+            # Friends Side 1
+            friends_one = models.Friend.query.filter_by(user_to=user.id, status=1)
 
-            # Friends
-
+            for friend_one in friends_one:
+                models.Bet.query.filter_by(user_id=friend_one.user_from)
 
             response = jsonify({'bets': results})
             response.status_code = 200
