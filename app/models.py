@@ -99,14 +99,18 @@ class Bet(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
-    max_users = db.Column(db.String(60))
+    max_users = db.Column(db.Integer)
     title = db.Column(db.String(60), nullable=False)
-    text = db.Column(db.String(255))
+    description = db.Column(db.String(255))
     amount = db.Column(db.Integer, nullable=False)
-    completed = db.Column(db.Boolean, default=False, nullable=False)
+    winner = db.Column(db.Boolean)
     locked = db.Column(db.Boolean, default=False, nullable=False)
+    complete = db.Column(db.Boolean, default=False, nullable=False)
+    pot = db.Column(db.Integer, nullable=False, default=0)
 
+    # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
+    likes = db.relationship('Likes', backref='bet', lazy=True)
 
     def __init__(self, creator_id, max_users, title, text, amount, locked):
         self.creator_id = creator_id
@@ -146,6 +150,8 @@ class BetUsers(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'),
                        nullable=False)
+
+    active = db.Column(db.Boolean, nullable=False, default=False)
 
 
     def __init__(self, bet_id, user_id):
