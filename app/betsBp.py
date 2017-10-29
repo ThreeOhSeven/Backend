@@ -38,7 +38,7 @@ def public_feed():
                 # Get if the current user liked the bet
                 like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
 
-                if count is 1:
+                if like is 1:
                     liked = True
                 else:
                     liked = False
@@ -85,7 +85,7 @@ def private_feed():
         else:
 
             # Users Bets
-            my_bets = models.Bet.query.filter_by(user_id=user.id).all()
+            my_bets = models.Bet.query.filter_by(creator_id=user.id).all()
             results = []
 
             for bet in my_bets:
@@ -97,7 +97,7 @@ def private_feed():
                 # Get if the current user liked the bet
                 like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
 
-                if count is 1:
+                if like is 1:
                     liked = True
                 else:
                     liked = False
@@ -133,7 +133,7 @@ def private_feed():
                     # Get if the current user liked the bet
                     like = models.Likes.query.filter_by(bet_id=friend_one_bet.id, user_id=user.id).count()
 
-                    if count is 1:
+                    if like is 1:
                         liked = True
                     else:
                         liked = False
@@ -167,7 +167,7 @@ def private_feed():
                     # Get if the current user liked the bet
                     like = models.Likes.query.filter_by(bet_id=friend_two_bet.id, user_id=user.id).count()
 
-                    if count is 1:
+                    if like is 1:
                         liked = True
                     else:
                         liked = False
@@ -193,9 +193,9 @@ def private_feed():
             return response
 
 
-######## My Bets ########
-@betRoutes.route('/mybets', methods=['POST'])
-def my_bets():
+######## My Open Bets ########
+@betRoutes.route('/open', methods=['POST'])
+def my_open_bets():
 
     authClass = authBackend()
 
@@ -211,42 +211,166 @@ def my_bets():
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
 
-            bet_users = models.BetUsers.query.filter_by(user_id=user.id).all()
+            bet_users = models.BetUsers.query.filter_by(user_id=user.id, active=1).all()
             results = []
 
-            for user in bet_users:
+            for bet_user in bet_users:
+
+                bets = models.Bet.query.filter_by(id=bet_user.bet_id, complete=0).all()
+
+                for bet in bets:
+
+                    # Get like count
+                    count = models.Likes.query.filter_by(bet_id=bet.id).count()
+                    print(count)
+
+                    # Get if the current user liked the bet
+                    like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+
+                    if like is 1:
+                        liked = True
+                    else:
+                        liked = False
+
+                    print(liked)
+
+                    # Make JSONObject to return
+                    obj = {
+                        'id': bet.id,
+                        'creator_id': bet.creator_id,
+                        'max_users': bet.max_users,
+                        'title': bet.title,
+                        'description': bet.description,
+                        'amount': bet.amount,
+                        'winner': bet.winner,
+                        'locked': bet.locked,
+                        'complete': bet.complete,
+                        'num_likes': count,
+                        'liked': liked
+                    }
+                    results.append(obj)
+
+            response = jsonify({'bets': results})
+            response.status_code = 200
+            return response
 
 
+######## My Completed Bets ########
+@betRoutes.route('/completed', methods=['POST'])
+def my_completed_bets():
 
-                # Get like count
-                count = models.Likes.query.filter_by(bet_id=bet.id).count()
-                print(count)
+    authClass = authBackend()
 
-                # Get if the current user liked the bet
-                like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
 
-                if count is 1:
-                    liked = True
-                else:
-                    liked = False
+        email = authClass.decode_jwt(token)
 
-                print(liked)
+        user = db.session.query(models.User).filter_by(email=email).first()
 
-                # Make JSONObject to return
-                obj = {
-                    'id': bet.id,
-                    'creator_id': bet.creator_id,
-                    'max_users': bet.max_users,
-                    'title': bet.title,
-                    'description': bet.description,
-                    'amount': bet.amount,
-                    'winner': bet.winner,
-                    'locked': bet.locked,
-                    'complete': bet.complete,
-                    'num_likes': count,
-                    'liked': liked
-                }
-                results.append(obj)
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+
+            bet_users = models.BetUsers.query.filter_by(user_id=user.id, active=1).all()
+            results = []
+
+            for bet_user in bet_users:
+
+                bets = models.Bet.query.filter_by(id=bet_user.bet_id, complete=1).all()
+
+                for bet in bets:
+
+                    # Get like count
+                    count = models.Likes.query.filter_by(bet_id=bet.id).count()
+
+                    # Get if the current user liked the bet
+                    like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+
+                    if like is 1:
+                        liked = True
+                    else:
+                        liked = False
+
+
+                    # Make JSONObject to return
+                    obj = {
+                        'id': bet.id,
+                        'creator_id': bet.creator_id,
+                        'max_users': bet.max_users,
+                        'title': bet.title,
+                        'description': bet.description,
+                        'amount': bet.amount,
+                        'winner': bet.winner,
+                        'locked': bet.locked,
+                        'complete': bet.complete,
+                        'num_likes': count,
+                        'liked': liked
+                    }
+                    results.append(obj)
+
+            response = jsonify({'bets': results})
+            response.status_code = 200
+            return response
+
+
+######## My Pending Bets ########
+@betRoutes.route('/pending', methods=['POST'])
+def my_pending_bets():
+
+    authClass = authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+
+            bet_users = models.BetUsers.query.filter_by(user_id=user.id, active=0).all()
+            results = []
+
+            for bet_user in bet_users:
+
+                bets = models.Bet.query.filter_by(id=bet_user.bet_id, complete=0).all()
+
+                for bet in bets:
+
+                    # Get like count
+                    count = models.Likes.query.filter_by(bet_id=bet.id).count()
+                    print(count)
+
+                    # Get if the current user liked the bet
+                    like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+
+                    if like is 1:
+                        liked = True
+                    else:
+                        liked = False
+
+                    print(liked)
+
+                    # Make JSONObject to return
+                    obj = {
+                        'id': bet.id,
+                        'creator_id': bet.creator_id,
+                        'max_users': bet.max_users,
+                        'title': bet.title,
+                        'description': bet.description,
+                        'amount': bet.amount,
+                        'winner': bet.winner,
+                        'locked': bet.locked,
+                        'complete': bet.complete,
+                        'num_likes': count,
+                        'liked': liked
+                    }
+                    results.append(obj)
 
             response = jsonify({'bets': results})
             response.status_code = 200
