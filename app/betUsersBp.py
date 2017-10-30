@@ -70,6 +70,10 @@ def send_bet():
     if bet is None:
         return jsonify({'result': False, 'error': 'Bet not found'}), 400
 
+    betUsersCount = db.session.query(BetUsers).filter_by(bet_id=bet.id).count()
+    if betUsersCount is bet.max_users:
+        return jsonify({'result': False, 'error': 'The bet is full'}), 400
+
     # Add the passive user to the bet
     betUser = BetUsers(bet_id=bet.id, user_id=user.id, active=0)
     betUser.save()
