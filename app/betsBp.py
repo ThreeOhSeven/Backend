@@ -494,6 +494,8 @@ def join_bet():
         else:
             bet_id = payload['betId']
 
-            betUser = models.BetUsers(bet_id=bet_id, user_id=user.id)
+            betUser = models.BetUsers(bet_id=bet_id, user_id=user.id, active_flag=0)
 
             betUser.save()
+
+            return jsonify({'result': True, 'success': 'Bet Joined'}), 200
