@@ -136,9 +136,10 @@ class BetUsers(db.Model):
     active = db.Column(db.Boolean, nullable=False, default=False)
 
 
-    def __init__(self, bet_id, user_id, active_flag):
+    def __init__(self, bet_id, user_id, active):
         self.bet_id = bet_id
         self.user_id = user_id
+        self.active = active
 
     def __repr__(self):
         return '<BetUsers id: {}>'.format(self.id)

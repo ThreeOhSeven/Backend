@@ -5,11 +5,11 @@ from .models import User, Bet, BetUsers
 from sqlalchemy import or_, and_
 from .authRoutines import *
 
-betRoutes = Blueprint('betUsersBp', __name__)
+betUsersRoutes = Blueprint('betUsersBp', __name__)
 
 authClass = authBackend()
 
-@betRoutes.route('/bets/join', methods=['POST'])
+@betUsersRoutes.route('/bets/join', methods=['POST'])
 def join_bet():
     if request.method != 'POST':
         return jsonify({'result': False, 'error': "Invalid request"}), 400
@@ -47,7 +47,7 @@ def join_bet():
 
     return jsonify({'result': True, 'error': ''}), 200
 
-@betRoutes.route('/bets/send', methods=['POST'])
+@betUsersRoutes.route('/bets/send', methods=['POST'])
 def send_bet():
     if request.method != 'POST':
         return jsonify({'result': False, 'error': "Invalid request"}), 400
@@ -80,7 +80,7 @@ def send_bet():
 
     return jsonify({'result': True, 'error': ''}), 200
 
-@betRoutes.route('/bets/accept', methods=['POST'])
+@betUsersRoutes.route('/bets/accept', methods=['POST'])
 def accept_bet():
     if request.method != 'POST':
         return jsonify({'result': False, 'error': "Invalid request"}), 400
@@ -120,7 +120,7 @@ def accept_bet():
 
     return jsonify({'result': True, 'error': ''}), 200
 
-@betRoutes.route('/bets/reject', methods=['POST'])
+@betUsersRoutes.route('/bets/reject', methods=['POST'])
 def reject_bet():
     if request.method != 'POST':
         return jsonify({'result': False, 'error': "Invalid request"}), 400
