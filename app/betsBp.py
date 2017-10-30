@@ -393,7 +393,7 @@ def create_bet():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
 
-        print(payload)
+        # print(payload)
 
         token = payload['authToken']
 
@@ -418,6 +418,11 @@ def create_bet():
             except AssertionError as e:
                 return jsonify({'result': False, 'error': e.message}), 400
             bet.save()
+            try:
+                betUser = models.BetUsers(bet.id, creator, True)
+            except AssertionError as e:
+                return jsonify({'result' : False, 'error': e.message}), 400
+            betUser.save()
             return jsonify({'result': True, 'error': ""}), 200
 
 
@@ -483,6 +488,3 @@ def join_bet():
             betUser = models.BetUsers(bet_id=bet_id, user_id=user.id)
 
             betUser.save()
-
-
-
