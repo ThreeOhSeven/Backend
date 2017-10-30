@@ -49,23 +49,15 @@ def public_feed():
                 for bet_user in bet_users:
                     user = models.User.query.filter_by(id=bet_user.user_id).first()
 
-                    users.append(user)
+                    users.append(user.toJSON)
 
-                # Make JSONObject to return
-                obj = {
-                    'id': bet.id,
-                    'creator_id': bet.creator_id,
-                    'max_users': bet.max_users,
-                    'title': bet.title,
-                    'description': bet.description,
-                    'amount': bet.amount,
-                    'winner': bet.winner,
-                    'locked': bet.locked,
-                    'complete': bet.complete,
-                    'num_likes': count,
-                    'liked': liked,
-                    'users': users
-                }
+                # Make JSONobject
+                obj = bet.toJSON
+
+                obj['num_likes'] = count
+                obj['liked'] = liked
+                obj['users'] = users
+
                 results.append(obj)
 
             response = jsonify({'bets': results})

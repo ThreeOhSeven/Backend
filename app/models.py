@@ -51,7 +51,7 @@ class User(db.Model):
 
 
     def __repr__(self):
-        return '<User id: {}, Username: {}, Email: {}, Birthday: {}>'.format(self.id, self.username, self.email, self.birthday)
+        return 'id: {}, Username: {}, Email: {}, Birthday: {}'.format(self.id, self.username, self.email, self.birthday)
 
     def save(self):
         db.session.add(self)
@@ -60,6 +60,17 @@ class User(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    @property
+    def toJSON(self):
+        obj = {
+            "id" : self.id,
+            "username" : self.username,
+            "email" : self.email,
+            "birthday" : self.birthday
+        }
+
+        return obj
 
 
 class Friend(db.Model):
@@ -134,6 +145,22 @@ class Bet(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    @property
+    def toJSON(self):
+        obj = {
+            'id': self.id,
+            'creator_id': self.creator_id,
+            'max_users': self.max_users,
+            'title': self.title,
+            'description': self.description,
+            'amount': self.amount,
+            'winner': self.winner,
+            'locked': self.locked,
+            'complete': self.complete,
+        }
+
+        return obj
 
 
 class BetUsers(db.Model):
