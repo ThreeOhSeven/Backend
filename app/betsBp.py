@@ -416,19 +416,21 @@ def create_bet():
             text = payload['description']
             amount = payload['amount']
             locked = payload['locked']
-
+            side_a = payload['sideA']
+            side_b = payload['sideB']
 
             try:
-                bet = models.Bet(creator, maxUsers, title, text, amount, locked)
+                bet = models.Bet(creator, maxUsers, title, text, amount, locked, side_a, side_b)
             except AssertionError as e:
                 return jsonify({'result': False, 'error': e.message}), 400
             bet.save()
             try:
-                betUser = models.BetUsers(bet.id, creator, True)
+                betUser = models.BetUsers(bet.id, user.id, True)
             except AssertionError as e:
                 return jsonify({'result' : False, 'error': e.message}), 400
+
             betUser.save()
-            return jsonify({'result': True, 'error': ""}), 200
+            return jsonify({'result': True, 'success': ""}), 200
 
 
 ######## Edit Bet ########
