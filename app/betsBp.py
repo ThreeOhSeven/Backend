@@ -8,6 +8,11 @@ from .authRoutines import *
 betRoutes = Blueprint('betsBp', __name__)
 
 
+#######################################################################################
+####                                     FEEDS                                     ####
+#######################################################################################
+
+
 ######## Public Feed ########
 @betRoutes.route('/publicfeed', methods=['POST'])
 def public_feed():
@@ -100,20 +105,22 @@ def private_feed():
                 else:
                     liked = False
 
-                # Make JSONObject to return
-                obj = {
-                    'id': bet.id,
-                    'creator_id': bet.creator_id,
-                    'max_users': bet.max_users,
-                    'title': bet.title,
-                    'description': bet.description,
-                    'amount': bet.amount,
-                    'winner': bet.winner,
-                    'locked': bet.locked,
-                    'complete': bet.complete,
-                    'num_likes': count,
-                    'liked': liked
-                }
+                # Get users in bet
+                bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+                users = []
+
+                for bet_user in bet_users:
+                    user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                    users.append(user.toJSON)
+
+                # Make JSONobject
+                obj = bet.toJSON
+
+                obj['num_likes'] = count
+                obj['liked'] = liked
+                obj['users'] = users
+
                 results.append(obj)
 
             # Friends Side 1
@@ -134,20 +141,22 @@ def private_feed():
                     else:
                         liked = False
 
-                    # Make JSONObject to return
-                    obj = {
-                        'id': bet.id,
-                        'creator_id': bet.creator_id,
-                        'max_users': bet.max_users,
-                        'title': bet.title,
-                        'description': bet.description,
-                        'amount': bet.amount,
-                        'winner': bet.winner,
-                        'locked': bet.locked,
-                        'complete': bet.complete,
-                        'num_likes': count,
-                        'liked': liked
-                    }
+                    # Get users in bet
+                    bet_users = models.BetUsers.query.filter_by(bet_id=friend_one_bet.id).all()
+                    users = []
+
+                    for bet_user in bet_users:
+                        user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                        users.append(user.toJSON)
+
+                    # Make JSONobject
+                    obj = friend_one_bet.toJSON
+
+                    obj['num_likes'] = count
+                    obj['liked'] = liked
+                    obj['users'] = users
+
                     results.append(obj)
 
             # Friends Side 2
@@ -168,20 +177,22 @@ def private_feed():
                     else:
                         liked = False
 
-                    # Make JSONObject to return
-                    obj = {
-                        'id': bet.id,
-                        'creator_id': bet.creator_id,
-                        'max_users': bet.max_users,
-                        'title': bet.title,
-                        'description': bet.description,
-                        'amount': bet.amount,
-                        'winner': bet.winner,
-                        'locked': bet.locked,
-                        'complete': bet.complete,
-                        'num_likes': count,
-                        'liked': liked
-                    }
+                    # Get users in bet
+                    bet_users = models.BetUsers.query.filter_by(bet_id=friend_two_bet.id).all()
+                    users = []
+
+                    for bet_user in bet_users:
+                        user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                        users.append(user.toJSON)
+
+                    # Make JSONobject
+                    obj = friend_two_bet.toJSON
+
+                    obj['num_likes'] = count
+                    obj['liked'] = liked
+                    obj['users'] = users
+
                     results.append(obj)
 
             response = jsonify({'bets': results})
@@ -227,20 +238,22 @@ def my_open_bets():
                     else:
                         liked = False
 
-                    # Make JSONObject to return
-                    obj = {
-                        'id': bet.id,
-                        'creator_id': bet.creator_id,
-                        'max_users': bet.max_users,
-                        'title': bet.title,
-                        'description': bet.description,
-                        'amount': bet.amount,
-                        'winner': bet.winner,
-                        'locked': bet.locked,
-                        'complete': bet.complete,
-                        'num_likes': count,
-                        'liked': liked
-                    }
+                    # Get users in bet
+                    bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+                    users = []
+
+                    for bet_user in bet_users:
+                        user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                        users.append(user.toJSON)
+
+                    # Make JSONobject
+                    obj = bet.toJSON
+
+                    obj['num_likes'] = count
+                    obj['liked'] = liked
+                    obj['users'] = users
+
                     results.append(obj)
 
             response = jsonify({'bets': results})
@@ -286,21 +299,22 @@ def my_completed_bets():
                     else:
                         liked = False
 
+                    # Get users in bet
+                    bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+                    users = []
 
-                    # Make JSONObject to return
-                    obj = {
-                        'id': bet.id,
-                        'creator_id': bet.creator_id,
-                        'max_users': bet.max_users,
-                        'title': bet.title,
-                        'description': bet.description,
-                        'amount': bet.amount,
-                        'winner': bet.winner,
-                        'locked': bet.locked,
-                        'complete': bet.complete,
-                        'num_likes': count,
-                        'liked': liked
-                    }
+                    for bet_user in bet_users:
+                        user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                        users.append(user.toJSON)
+
+                    # Make JSONobject
+                    obj = bet.toJSON
+
+                    obj['num_likes'] = count
+                    obj['liked'] = liked
+                    obj['users'] = users
+
                     results.append(obj)
 
             response = jsonify({'bets': results})
@@ -347,21 +361,22 @@ def my_pending_bets():
                     else:
                         liked = False
 
+                    # Get users in bet
+                    bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+                    users = []
 
-                    # Make JSONObject to return
-                    obj = {
-                        'id': bet.id,
-                        'creator_id': bet.creator_id,
-                        'max_users': bet.max_users,
-                        'title': bet.title,
-                        'description': bet.description,
-                        'amount': bet.amount,
-                        'winner': bet.winner,
-                        'locked': bet.locked,
-                        'complete': bet.complete,
-                        'num_likes': count,
-                        'liked': liked
-                    }
+                    for bet_user in bet_users:
+                        user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                        users.append(user.toJSON)
+
+                    # Make JSONobject
+                    obj = bet.toJSON
+
+                    obj['num_likes'] = count
+                    obj['liked'] = liked
+                    obj['users'] = users
+
                     results.append(obj)
 
             response = jsonify({'bets': results})
