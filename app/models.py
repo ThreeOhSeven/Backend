@@ -100,18 +100,22 @@ class Bet(db.Model):
     locked = db.Column(db.Boolean, default=False, nullable=False)
     complete = db.Column(db.Boolean, default=False, nullable=False)
     pot = db.Column(db.Integer, nullable=False, default=0)
+    side_a = db.Column(db.String(60), nullable=False)
+    side_b = db.Column(db.String(60), nullable=False)
 
     # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
     likes = db.relationship('Likes', backref='bet', lazy=True)
 
-    def __init__(self, creator_id, max_users, title, text, amount, locked):
+    def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b):
         self.creator_id = creator_id
         self.max_users = max_users
         self.title = title
-        self.text = text
+        self.description = description
         self.amount = amount
         self.locked = locked
+        self.side_a = side_a
+        self.side_b = side_b
 
     def __repr__(self):
         return '<Bet id: {}>'.format(self.id)
@@ -140,6 +144,8 @@ class Bet(db.Model):
             'winner': self.winner,
             'locked': self.locked,
             'complete': self.complete,
+            'side_a': self.side_a,
+            'side_b': self.side_b
         }
 
         return obj
