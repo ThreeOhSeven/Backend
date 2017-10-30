@@ -100,8 +100,8 @@ class Bet(db.Model):
     locked = db.Column(db.Boolean, default=False, nullable=False)
     complete = db.Column(db.Boolean, default=False, nullable=False)
     pot = db.Column(db.Integer, nullable=False, default=0)
-    side_a = db.Column(db.String(60), nullable=False)
-    side_b = db.Column(db.String(60), nullable=False)
+    side_a = db.Column(db.String(60), nullable=False, default='Yes')
+    side_b = db.Column(db.String(60), nullable=False, default='No')
 
     # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
