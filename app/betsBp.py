@@ -401,7 +401,7 @@ def profile():
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
-            user_id = payload["user_id"]
+            user_id = payload["userId"]
 
             # Users Bets
             my_bets = models.Bet.query.filter_by(creator_id=user_id).all()
