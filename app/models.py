@@ -33,7 +33,7 @@ class User(db.Model):
         self.birthday = birthday
 
     def __repr__(self):
-        return '<User id: {}, Username: {}, Email: {}, Birthday: {}>'.format(self.id, self.username, self.email, self.birthday)
+        return 'id: {}, Username: {}, Email: {}, Birthday: {}'.format(self.id, self.username, self.email, self.birthday)
 
     def save(self):
         db.session.add(self)
@@ -42,6 +42,17 @@ class User(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    @property
+    def toJSON(self):
+        obj = {
+            "id" : self.id,
+            "username" : self.username,
+            "email" : self.email,
+            "birthday" : self.birthday
+        }
+
+        return obj
 
 
 class Friend(db.Model):
@@ -89,18 +100,22 @@ class Bet(db.Model):
     locked = db.Column(db.Boolean, default=False, nullable=False)
     complete = db.Column(db.Boolean, default=False, nullable=False)
     pot = db.Column(db.Integer, nullable=False, default=0)
+    side_a = db.Column(db.String(60), nullable=False, default='Yes')
+    side_b = db.Column(db.String(60), nullable=False, default='No')
 
     # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
     likes = db.relationship('Likes', backref='bet', lazy=True)
 
-    def __init__(self, creator_id, max_users, title, text, amount, locked):
+    def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b):
         self.creator_id = creator_id
         self.max_users = max_users
         self.title = title
-        self.text = text
+        self.description = description
         self.amount = amount
         self.locked = locked
+        self.side_a = side_a
+        self.side_b = side_b
 
     def __repr__(self):
         return '<Bet id: {}>'.format(self.id)
@@ -117,6 +132,24 @@ class Bet(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    @property
+    def toJSON(self):
+        obj = {
+            'id': self.id,
+            'creatorId': self.creator_id,
+            'maxUsers': self.max_users,
+            'title': self.title,
+            'description': self.description,
+            'amount': self.amount,
+            'winner': self.winner,
+            'locked': self.locked,
+            'complete': self.complete,
+            'sideA': self.side_a,
+            'sideB': self.side_b
+        }
+
+        return obj
+
 
 class BetUsers(db.Model):
     """
@@ -126,20 +159,17 @@ class BetUsers(db.Model):
     __tablename__ = 'BetUsers'
 
     id = db.Column(db.Integer, primary_key=True)
-
-    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'),
-                       nullable=False)
-
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'),
-                       nullable=False)
-
+    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'),nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     active = db.Column(db.Boolean, nullable=False, default=False)
+    side = db.Column(db.Integer, nullable=False)
 
 
-    def __init__(self, bet_id, user_id, active):
+    def __init__(self, bet_id, user_id, active, side):
         self.bet_id = bet_id
         self.user_id = user_id
         self.active = active
+        self.side = side
 
     def __repr__(self):
         return '<BetUsers id: {}>'.format(self.id)
