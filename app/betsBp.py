@@ -59,7 +59,7 @@ def public_feed():
                 # Make JSONobject
                 obj = bet.toJSON
 
-                obj['num_likes'] = count
+                obj['numLikes'] = count
                 obj['liked'] = liked
                 obj['users'] = users
 
@@ -117,7 +117,7 @@ def private_feed():
                 # Make JSONobject
                 obj = bet.toJSON
 
-                obj['num_likes'] = count
+                obj['numLikes'] = count
                 obj['liked'] = liked
                 obj['users'] = users
 
@@ -153,7 +153,7 @@ def private_feed():
                     # Make JSONobject
                     obj = friend_one_bet.toJSON
 
-                    obj['num_likes'] = count
+                    obj['numLikes'] = count
                     obj['liked'] = liked
                     obj['users'] = users
 
@@ -189,7 +189,7 @@ def private_feed():
                     # Make JSONobject
                     obj = friend_two_bet.toJSON
 
-                    obj['num_likes'] = count
+                    obj['numLikes'] = count
                     obj['liked'] = liked
                     obj['users'] = users
 
@@ -250,7 +250,7 @@ def my_open_bets():
                     # Make JSONobject
                     obj = bet.toJSON
 
-                    obj['num_likes'] = count
+                    obj['numLikes'] = count
                     obj['liked'] = liked
                     obj['users'] = users
 
@@ -311,7 +311,7 @@ def my_completed_bets():
                     # Make JSONobject
                     obj = bet.toJSON
 
-                    obj['num_likes'] = count
+                    obj['numLikes'] = count
                     obj['liked'] = liked
                     obj['users'] = users
 
@@ -373,7 +373,7 @@ def my_pending_bets():
                     # Make JSONobject
                     obj = bet.toJSON
 
-                    obj['num_likes'] = count
+                    obj['numLikes'] = count
                     obj['liked'] = liked
                     obj['users'] = users
 
@@ -432,7 +432,8 @@ def profile():
                 # Make JSONobject
                 obj = bet.toJSON
 
-                obj['num_likes'] = count
+
+                obj['numLikes'] = count
                 obj['liked'] = liked
                 obj['users'] = users
 
