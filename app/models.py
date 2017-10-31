@@ -136,16 +136,16 @@ class Bet(db.Model):
     def toJSON(self):
         obj = {
             'id': self.id,
-            'creator_id': self.creator_id,
-            'max_users': self.max_users,
+            'creatorId': self.creator_id,
+            'maxUsers': self.max_users,
             'title': self.title,
             'description': self.description,
             'amount': self.amount,
             'winner': self.winner,
             'locked': self.locked,
             'complete': self.complete,
-            'side_a': self.side_a,
-            'side_b': self.side_b
+            'sideA': self.side_a,
+            'sideB': self.side_b
         }
 
         return obj
