@@ -432,6 +432,7 @@ def profile():
                 # Make JSONobject
                 obj = bet.toJSON
 
+
                 obj['numLikes'] = count
                 obj['liked'] = liked
                 obj['users'] = users
