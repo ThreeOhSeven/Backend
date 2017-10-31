@@ -384,6 +384,65 @@ def my_pending_bets():
             return response
 
 
+######## Profile ########
+@betRoutes.route('/profile', methods=['POST'])
+def profile():
+
+    authClass = authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            user_id = payload["user_id"]
+
+            # Users Bets
+            my_bets = models.Bet.query.filter_by(creator_id=user_id).all()
+            results = []
+
+            for bet in my_bets:
+
+                # Get like count
+                count = models.Likes.query.filter_by(bet_id=bet.id).count()
+
+                # Get if the current user liked the bet
+                like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+
+                if like is 1:
+                    liked = True
+                else:
+                    liked = False
+
+                # Get users in bet
+                bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+                users = []
+
+                for bet_user in bet_users:
+                    user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                    users.append(user.toJSON)
+
+                # Make JSONobject
+                obj = bet.toJSON
+
+                obj['num_likes'] = count
+                obj['liked'] = liked
+                obj['users'] = users
+
+                results.append(obj)
+
+            response = jsonify({'bets': results})
+            response.status_code = 200
+            return response
+
+
 #######################################################################################
 ####                                     BETS                                      ####
 #######################################################################################
