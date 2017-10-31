@@ -31,6 +31,9 @@ def create_app(config_name):
     from .betsBp import betRoutes as bets_blueprint
     app.register_blueprint(bets_blueprint)
 
+    from .betUsersBp import betUsersRoutes as betsUser_blueprint
+    app.register_blueprint(betsUser_blueprint)
+
     from .authBp import authRoutes as auth_blueprint
     app.register_blueprint(auth_blueprint)
 

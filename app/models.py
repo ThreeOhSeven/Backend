@@ -159,19 +159,17 @@ class BetUsers(db.Model):
     __tablename__ = 'BetUsers'
 
     id = db.Column(db.Integer, primary_key=True)
-
-    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'),
-                       nullable=False)
-
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'),
-                       nullable=False)
-
+    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'),nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     active = db.Column(db.Boolean, nullable=False, default=False)
+    side = db.Column(db.Integer, nullable=False)
 
 
-    def __init__(self, bet_id, user_id, active_flag):
+    def __init__(self, bet_id, user_id, active, side):
         self.bet_id = bet_id
         self.user_id = user_id
+        self.active = active
+        self.side = side
 
     def __repr__(self):
         return '<BetUsers id: {}>'.format(self.id)
