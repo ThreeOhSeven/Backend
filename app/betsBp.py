@@ -301,11 +301,13 @@ def complete_bet():
 
     # Check to see if the user calling complete is the creator
     if bet.creator_id is not user.id:
-        return jsonify({'result' : False, 'error' : 'Only the creator can mark the bet as complete'}). 400
+        return jsonify({'result' : False, 'error' : 'Only the creator can mark the bet as complete'}), 400
 
     bet.complete = 1
     bet.locked = 1
     bet.winner = winner
     bet.save()
+
+    # Handle the transactions
 
 

@@ -2,7 +2,7 @@ from flask import Blueprint, json, request, jsonify
 import requests
 from sqlalchemy import or_, and_
 from app import db
-from .models import User, Transactions
+from .models import User, Bet, Transactions
 
 transactionRoutes = Blueprint('transaction', __name__)
 from .authBp import authBackend
@@ -31,3 +31,17 @@ def fetchPoints():
 
         return jsonify({'result' : True, 'current_balance' : user_points.current_balance})
     return jsonify({'result' : False})
+
+# Transactions are always user to bet positve or negative
+def transaction(userID, betID, amount):
+    bet = db.session.query(Bet).filter_by(id=betID).first()
+
+    userBalance = db.session.query(Transactions).filter_by(user_id=userID).first()
+
+    if userBalance + amount >= 0 and bet.pot - amount >= 0:
+        userBalance -= amount
+        bet.pot += amount
+        userBalance.save()
+        bet.save()
+
+    return
