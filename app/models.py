@@ -27,10 +27,13 @@ class User(db.Model):
     friend_from = db.relationship('Friend', backref='from', primaryjoin='User.id==Friend.user_from',
                                   cascade="all, delete-orphan")
 
-    def __init__(self, username, email, birthday):
+    current_balance = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, username, email, birthday, current_balance=10):
         self.username = username
         self.email = email
         self.birthday = birthday
+        self.current_balance = current_balance
 
     def __repr__(self):
         return 'id: {}, Username: {}, Email: {}, Birthday: {}'.format(self.id, self.username, self.email, self.birthday)
@@ -106,6 +109,7 @@ class Bet(db.Model):
     # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
     likes = db.relationship('Likes', backref='bet', lazy=True)
+    transactions = db.relationship('Transactions', backref='bet', lazy=True)
 
     def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b):
         self.creator_id = creator_id
@@ -231,7 +235,8 @@ class Transactions(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
-    current_balance = db.Column(db.Integer, nullable=False)
+    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'), nullable=False)
+    amount = db.Column(db.Integer, nullable=False)
 
     def __init__(self, user_id, current_balance):
         self.user_id = user_id
