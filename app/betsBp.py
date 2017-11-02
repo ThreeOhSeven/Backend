@@ -213,13 +213,14 @@ def create_bet():
             creator = user.id
             maxUsers = payload['maxUsers']
             title = payload['title']
-            text = payload['description']
+            description = payload['description']
             amount = payload['amount']
             locked = payload['locked']
-
+            side_a = payload['sideA']
+            side_b = payload['sideB']
 
             try:
-                bet = models.Bet(creator, maxUsers, title, text, amount, locked)
+                bet = models.Bet(creator, maxUsers, title, description, amount, locked, side_a, side_b)
             except AssertionError as e:
                 return jsonify({'result': False, 'error': e.message}), 400
             bet.save()
@@ -228,7 +229,7 @@ def create_bet():
             except AssertionError as e:
                 return jsonify({'result' : False, 'error': e.message}), 400
             betUser.save()
-            return jsonify({'result': True, 'error': ""}), 200
+            return jsonify({'result': True, 'id': bet.id}), 200
 
 
 ######## Edit Bet ########
@@ -259,9 +260,11 @@ def edit_bet():
                 bet.creator = user.id
                 bet.maxUsers = payload['maxUsers']
                 bet.title = payload['title']
-                bet.text = payload['description']
+                bet.description = payload['description']
                 bet.amount = payload['amount']
                 bet.locked = payload['locked']
+                bet.side_a = payload['sideA']
+                bet.side_b = payload['sideB']
 
                 try:
                     db.session.commit()
