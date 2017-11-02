@@ -287,7 +287,6 @@ def complete_bet():
     if email is False:
         return jsonify({'result': False, 'error': 'Failed Token'}), 400
 
-
     if email is False:
         return jsonify({'result': False, 'error': 'Failed Token'}), 400
 
@@ -305,5 +304,8 @@ def complete_bet():
         return jsonify({'result' : False, 'error' : 'Only the creator can mark the bet as complete'}). 400
 
     bet.complete = 1
-    bet.winner =
+    bet.locked = 1
+    bet.winner = winner
+    bet.save()
+
 
