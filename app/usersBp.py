@@ -93,9 +93,9 @@ def getIdByEmail():
     # Get the user's email based on the 'authToken'
     payload = json.loads(request.data.decode())
     token = payload['authToken']
-    email = authClass.decode_jwt(token)
+    email = payload['email']
 
-    if email is False:
+    if authClass.decode_jwt(token) is False:
         return jsonify({'result': False, 'error': 'Failed Token'}), 400
 
     # Query the user table based on the email
