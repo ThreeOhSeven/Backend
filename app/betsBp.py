@@ -269,3 +269,41 @@ def edit_bet():
                     return jsonify({'result': False, 'error': e.message}), 400
 
                 return jsonify({'result': True, 'success': "Bet updated successfully"}), 200
+
+
+######## Complete Bet ########
+@betRoutes.route('/bets/complete', methods=['POST'])
+def complete_bet():
+    if request.method != 'POST':
+        return jsonify({'result': False, 'error': "Invalid request"}), 400
+
+    # Authenticate the token and extract values from the request
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+    betID = payload['betID']
+    winner = payload['winning']
+
+    email = authClass.decode_jwt(token)
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+    user = db.session.query(models.User).filter_by(email=email).first()
+    bet = db.session.query(models.Bet).filter_by(id=betID).first()
+
+    if user is None:
+        return jsonify({'result': False, 'error': 'User not found'}), 400
+
+    if bet is None:
+        return jsonify({'result': False, 'error': 'Bet not found'}), 400
+
+    # Check to see if the user calling complete is the creator
+    if bet.creator_id is not user.id:
+        return jsonify({'result' : False, 'error' : 'Only the creator can mark the bet as complete'}). 400
+
+    bet.complete = 1
+    bet.winner =
+
