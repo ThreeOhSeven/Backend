@@ -225,7 +225,7 @@ def create_bet():
                 return jsonify({'result': False, 'error': e.message}), 400
             bet.save()
             try:
-                betUser = models.BetUsers(bet.id, creator, True)
+                betUser = models.BetUsers(bet.id, creator, True, 0)
             except AssertionError as e:
                 return jsonify({'result' : False, 'error': e.message}), 400
             betUser.save()
