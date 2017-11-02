@@ -428,7 +428,7 @@ def create_bet():
 
 
 ######## Edit Bet ########
-@betRoutes.route('/bets/edit', methods=['POST'])
+@betRoutes.route('/bets/update', methods=['POST'])
 def edit_bet():
 
     authClass = authBackend()
@@ -466,4 +466,4 @@ def edit_bet():
                 except AssertionError as e:
                     return jsonify({'result': False, 'error': e.message}), 400
 
-                return jsonify({'result': True, 'success': "Bet updated successfully"}), 200
+                return jsonify({'result': True, 'id': bet.id}), 200
