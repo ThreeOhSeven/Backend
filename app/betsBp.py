@@ -8,6 +8,7 @@ from .transactionBp import transaction
 
 betRoutes = Blueprint('betsBp', __name__)
 
+authClass = authBackend()
 
 #######################################################################################
 ####                                     FEEDS                                     ####
@@ -480,7 +481,7 @@ def complete_bet():
     payload = json.loads(request.data.decode())
     token = payload['authToken']
     betID = payload['betID']
-    winner = payload['winning']
+    winner = payload['winner']
 
     email = authClass.decode_jwt(token)
     if email is False:
