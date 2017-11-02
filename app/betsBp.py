@@ -447,7 +447,7 @@ def edit_bet():
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
-            bet = models.Bet.query.filter_by(bet_id=payload['betId']).first()
+            bet = models.Bet.query.filter_by(id=payload['betId']).first()
 
             if bet is None:
                 return jsonify({'result': False, 'error': 'Bet does not exist'}), 400
