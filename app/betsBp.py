@@ -4,6 +4,7 @@ import requests
 import json
 from app import models
 from .authRoutines import *
+from .transactionBp import transaction
 
 betRoutes = Blueprint('betsBp', __name__)
 
@@ -309,5 +310,20 @@ def complete_bet():
     bet.save()
 
     # Handle the transactions
+    betUsers = db.session.query(models.BetUsers).filter(bet_id=bet.id).all()
+
+    numOfWinners = 0
+    # Delete all users that did not accept invites and get the total count of users
+    for user in betUsers:
+        if user.active == 0:
+            db.delete(user)
+            db.commit()
+        ++numOfWinners
+
+    amount = bet.amount // numOfWinners
+
+    for user in betUsers:
+        if transaction(user.id, bet.id, amount) is False:
+            return jsonify({'result': False, 'error': 'Transaction error'}), 400
 
 
