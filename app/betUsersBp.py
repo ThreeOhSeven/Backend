@@ -2,7 +2,7 @@ import flask
 from flask import request, jsonify, Blueprint
 import json
 
-from .models import User, Bet, BetUsers
+from .models import User, Bet, BetUsers, Friend
 from .transactionBp import transaction
 from sqlalchemy import or_, and_
 from .authRoutines import *
@@ -215,3 +215,51 @@ def update_side_bet():
     betUser.save()
 
     return jsonify({'result': True, 'error': ''}), 200
+
+@betUsersRoutes.route("/bets/friendsNot", methods = ["POST"])
+def get_not_friends():
+    if request.method != 'POST':
+        return jsonify({'result' : False, 'error' : "Invlid request"}), 400
+
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+    betID = payload['betID']
+    email = authClass.decode_jwt(token)
+    if email is False:
+        return jsonify({'result' : False, 'error' : 'Failed Token'}), 400
+
+    user = db.session.query(User).filter_by(email = email).first()
+
+    if user is None:
+        return jsonify({'result' : False, 'error' : "User not found"}), 400
+
+    allFriendIDs = []
+    friends_from = db.session.query(Friend).filter_by(user_from=user.id).all()
+    for usrOb in friends_from:
+        allFriendIDs.append(usrOb.user_to)
+
+    friends_to = db.session.query(Friend).filter_by(user_to=user.id).all()
+    for usrOb in friends_to:
+        allFriendIDs.append(usrOb.user_from)
+
+    bet_users = db.session.query(BetUsers).filter_by(bet_id=betID).all()
+    bet_user_list = []
+    for bet_user in bet_users:
+        bet_user_list.append(bet_user.user_id)
+
+    if user.id in bet_user_list:
+        bet_user_list.remove(user.id)
+
+    fnb_list = list(set(allFriendIDs) - set(bet_user_list))
+    fnb_ob = []
+    for fnb in fnb_list:
+        fnbO = db.session.query(User).filter_by(id=fnb).first()
+        ob = {
+            'id' : fnbO.id,
+            'username' : fnbO.username,
+            'email' : fnbO.email,
+            'birthday' : fnbO.birthday
+        }
+        fnb_ob.append(ob)
+
+    return jsonify({'result' : True, 'users' : fnb_ob}), 200
