@@ -3,6 +3,7 @@ from flask import Blueprint, json, request, jsonify
 userRoutes = Blueprint('users', __name__)
 
 from .authRoutines import *
+from .models import *
 authClass = authBackend()
 
 @userRoutes.route('/info', methods=['POST'])

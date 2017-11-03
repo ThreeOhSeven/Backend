@@ -430,7 +430,7 @@ def create_bet():
 
 
 ######## Edit Bet ########
-@betRoutes.route('/bets/edit', methods=['POST'])
+@betRoutes.route('/bets/update', methods=['POST'])
 def edit_bet():
 
     authClass = authBackend()
@@ -449,7 +449,7 @@ def edit_bet():
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
-            bet = models.Bet.query.filter_by(bet_id=payload['betId']).first()
+            bet = models.Bet.query.filter_by(id=payload['betId']).first()
 
             if bet is None:
                 return jsonify({'result': False, 'error': 'Bet does not exist'}), 400
@@ -469,7 +469,6 @@ def edit_bet():
                     return jsonify({'result': False, 'error': e.message}), 400
 
                 return jsonify({'result': True, 'success': "Bet updated successfully"}), 200
-
 
 ######## Complete Bet ########
 @betRoutes.route('/bets/complete', methods=['POST'])
@@ -526,3 +525,4 @@ def complete_bet():
             return jsonify({'result': False, 'error': 'Transaction error'}), 400
 
 
+    return jsonify({'result': True, 'id': bet.id}), 200
