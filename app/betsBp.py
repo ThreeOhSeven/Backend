@@ -6,6 +6,8 @@ from app import models
 from .authRoutines import *
 from .transactionBp import transaction
 
+from sqlalchemy import or_, and_
+
 betRoutes = Blueprint('betsBp', __name__)
 
 authClass = authBackend()
@@ -420,7 +422,14 @@ def create_bet():
                 bet = models.Bet(creator, maxUsers, title, description, amount, locked, side_a, side_b)
             except AssertionError as e:
                 return jsonify({'result': False, 'error': e.message}), 400
+
             bet.save()
+
+            if transaction(user.id, bet.id, bet.amount) is False:
+                db.session.delete(bet)
+                db.session.commit()
+                return jsonify({'result': False, 'error': 'Your balance is to low to create a bet'}), 400
+
             try:
                 betUser = models.BetUsers(bet.id, creator, True, 0)
             except AssertionError as e:
@@ -502,27 +511,28 @@ def complete_bet():
     if bet.creator_id is not user.id:
         return jsonify({'result' : False, 'error' : 'Only the creator can mark the bet as complete'}), 400
 
+    # Handle the transactions
+    betUsers = db.session.query(models.BetUsers).filter_by(bet_id=bet.id).all()
+    betWinners = db.session.query(models.BetUsers).filter(and_(models.BetUsers.bet_id == bet.id,
+                                                               models.BetUsers.active == 1,
+                                                               models.BetUsers.side == winner)).all()
+
+    numOfWinners = len(betWinners)
+    # Delete all users that did not accept invites and get the total count of users
+    for user in betUsers:
+        if user.active == 0:
+            db.session.delete(user)
+            db.session.commit()
+
+    amount = bet.pot // numOfWinners
+    print(amount)
+    for user in betWinners:
+        if transaction(user.user_id, bet.id, -amount) is False:
+            return jsonify({'result': False, 'error': 'Transaction error'}), 400
+
     bet.complete = 1
     bet.locked = 1
     bet.winner = winner
     bet.save()
 
-    # Handle the transactions
-    betUsers = db.session.query(models.BetUsers).filter(bet_id=bet.id).all()
-
-    numOfWinners = 0
-    # Delete all users that did not accept invites and get the total count of users
-    for user in betUsers:
-        if user.active == 0:
-            db.delete(user)
-            db.commit()
-        ++numOfWinners
-
-    amount = bet.amount // numOfWinners
-
-    for user in betUsers:
-        if transaction(user.id, bet.id, amount) is False:
-            return jsonify({'result': False, 'error': 'Transaction error'}), 400
-
-
-    return jsonify({'result': True, 'id': bet.id}), 200
+    return jsonify({'result': True, 'error': ''}), 200

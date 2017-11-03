@@ -27,7 +27,7 @@ def fetchPoints():
 
         uid = user.id
 
-        user_points = db.session.query(Users).filter_by(user_id=uid).first()
+        user_points = db.session.query(User).filter_by(user_id=uid).first()
 
         return jsonify({'result' : True, 'current_balance' : user_points.current_balance})
     return jsonify({'result' : False})
@@ -38,8 +38,8 @@ def transaction(userID, betID, amount):
 
     user = db.session.query(User).filter_by(id=userID).first()
 
-    if user.balance + amount >= 0 and bet.pot - amount >= 0:
-        user.balance -= amount
+    if user.current_balance - amount >= 0 and bet.pot + amount >= 0:
+        user.current_balance -= amount
         bet.pot += amount
         user.save()
         bet.save()
@@ -47,5 +47,5 @@ def transaction(userID, betID, amount):
         return False
 
     # Record the transaction in the table
-
+    Transactions(userID, betID, amount)
     return True
