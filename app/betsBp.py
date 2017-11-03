@@ -524,8 +524,11 @@ def complete_bet():
             db.session.delete(user)
             db.session.commit()
 
-    amount = bet.pot // numOfWinners
-    print(amount)
+    if numOfWinners == 0:
+        amount = bet.pot // numOfWinners
+    else:
+        amount = -bet.amount
+
     for user in betWinners:
         if transaction(user.user_id, bet.id, -amount) is False:
             return jsonify({'result': False, 'error': 'Transaction error'}), 400
