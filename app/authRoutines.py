@@ -1,13 +1,16 @@
 from jose import jwt
 import datetime
 
+
 from app.config import Config
+
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
 from app import db
 from .models import User, Transactions
+
 
 class authBackend:
 
@@ -27,11 +30,12 @@ class authBackend:
         try:
             idinfo = id_token.verify_oauth2_token(token, requests.Request(), self.CLIENT_ID)
             if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+
                 raise ValueError('Wrong issuer.')
             userid = idinfo['email']
             return userid
         except ValueError:
-		    # Invalid token
+            # Invalid token
             return False
 
     def decode_jwt(self, jwtt):
@@ -41,11 +45,13 @@ class authBackend:
         except jwt.ExpiredSignatureError:
             try:
                 getUsername = jwt.decode(jwtt, self.JWT_KEY, algorithms = 'HS256', options = {'verify_exp' : False})
+
                 return getUsername['user']
             except:
                 return False
         except:
             return False
+
 
     def check_self_email(self, email):
         existUser = db.session.query(User).filter_by(email=email).first()
@@ -65,3 +71,4 @@ class authBackend:
             return False
 
         return False
+
