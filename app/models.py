@@ -238,9 +238,10 @@ class Transactions(db.Model):
     bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'), nullable=False)
     amount = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, user_id, current_balance):
+    def __init__(self, user_id, bet_id, amount):
         self.user_id = user_id
-        self.current_balance = current_balance
+        self.bet_id = bet_id
+        self.amount = amount
 
     def __repr__(self):
         return '<Transactions id: {}>'.format(self.id)

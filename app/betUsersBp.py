@@ -3,6 +3,7 @@ from flask import request, jsonify, Blueprint
 import json
 
 from .models import User, Bet, BetUsers
+from .transactionBp import transaction
 from sqlalchemy import or_, and_
 from .authRoutines import *
 
@@ -34,14 +35,17 @@ def join_bet():
     if bet is None:
         return jsonify({'result': False, 'error': 'Bet not found'}), 400
 
-        # Check to see if the bet is full
+    # Check to see if the bet is full
     numOfUsers = BetUsers.query.filter_by(bet_id=bet.id).count()
     if numOfUsers >= int(bet.max_users):
         return jsonify({'result': False, 'error': 'The bet is full.'}), 400
 
+    # Check to see if bet is locked or complete
+    if bet.complete or bet.locked:
+        return jsonify({'result': False, 'error': 'The bet is locked or complete'}), 400
+
     # Check that the user has enough currency to join the bet
-    userBalance = db.session.query(User).filter_by(user_id=user.id).first()
-    if userBalance.current_balance < bet.amount:
+    if user.current_balance < bet.amount:
         return jsonify({'result': False, 'error': 'User\'s balance is too low.'}), 400
 
     # Check if this request is an accept or a join
@@ -55,10 +59,8 @@ def join_bet():
     betUser.save()
 
     # Update the user and bet balance accordingly
-    userBalance.current_balance -= bet.amount
-    bet.pot += bet.amount
-    userBalance.save()
-    bet.save()
+    if transaction(user.id, bet.id, bet.amount) is False:
+        return jsonify({'result': True, 'error': 'Transaction error'}), 400
 
     return jsonify({'result': True, 'error': ''}), 200
 
@@ -98,8 +100,52 @@ def send_bet():
 
 @betUsersRoutes.route('/bets/accept', methods=['POST'])
 def accept_bet():
-    # Redirect to join_bet, using code 307 to preserve the HTTP POST
-    return flask.redirect(flask.url_for('betUsersBp.join_bet'), code=307)
+    if request.method != 'POST':
+        return jsonify({'result': False, 'error': "Invalid request"}), 400
+
+    # Authenticate the token and extract values from the request
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+    betID = payload['betID']
+    side = payload['side']
+
+    email = authClass.decode_jwt(token)
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+    user = db.session.query(User).filter_by(email=email).first()
+    bet = db.session.query(Bet).filter_by(id=betID).first()
+
+    if user is None:
+        return jsonify({'result': False, 'error': 'User not found'}), 400
+
+    if bet is None:
+        return jsonify({'result': False, 'error': 'Bet not found'}), 400
+
+    # Check that the user has enough currency to join the bet
+    if user.current_balance < bet.amount:
+        return jsonify({'result': False, 'error': 'User\'s balance is too low.'}), 400
+
+    # Check to see if bet is locked or complete
+    if bet.complete or bet.locked:
+        return jsonify({'result': False, 'error': 'The bet is locked or complete'}), 400
+
+    # Check if this request is an accept or a join
+    betUser = db.session.query(BetUsers).filter(and_(BetUsers.user_id == user.id,
+                                                        BetUsers.bet_id == bet.id)).first()
+    if betUser is None:
+        return jsonify({'result': False, 'error': 'User not found in the bet'}), 400
+
+    betUser.side = side
+    betUser.active = 1
+    betUser.save()
+
+    # Update the user and bet balance accordingly
+    if transaction(user.id, bet.id, bet.amount) is False:
+        return jsonify({'result': True, 'error': 'Transaction error'}), 400
+
+    return jsonify({'result': True, 'error': ''}), 200
+
 
 @betUsersRoutes.route('/bets/reject', methods=['POST'])
 def reject_bet():
@@ -132,5 +178,40 @@ def reject_bet():
 
     db.session.delete(betUser)
     db.session.commit()
+
+    return jsonify({'result': True, 'error': ''}), 200
+
+@betUsersRoutes.route('/bets/update/side', methods=['POST'])
+def update_side_bet():
+    if request.method != 'POST':
+        return jsonify({'result': False, 'error': "Invalid request"}), 400
+
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+    betID = payload['betID']
+    side = payload['side']
+
+    email = authClass.decode_jwt(token)
+
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+    user = db.session.query(User).filter_by(email=email).first()
+    bet = db.session.query(Bet).filter_by(id=betID).first()
+
+    if user is None:
+        return jsonify({'result': False, 'error': 'User not found'}), 400
+
+    if bet is None:
+        return jsonify({'result': False, 'error': 'Bet not found'}), 400
+
+    betUser = db.session.query(BetUsers).filter(and_(BetUsers.user_id == user.id,
+                                                     BetUsers.bet_id == bet.id)).first()
+
+    if betUser is None:
+        return jsonify({'result': False, 'error': 'User not in the bet'}), 400
+
+    betUser.side = side
+    betUser.save()
 
     return jsonify({'result': True, 'error': ''}), 200
