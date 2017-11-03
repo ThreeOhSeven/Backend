@@ -131,7 +131,7 @@ def private_feed():
             friends_one = models.Friend.query.filter_by(user_to=user.id, status=1).all()
 
             for friend_one in friends_one:
-                friend_one_bets = models.Bet.query.filter_by(user_id=friend_one.user_from).all()
+                friend_one_bets = models.Bet.query.filter_by(creator_id=friend_one.user_from).all()
 
                 for friend_one_bet in friend_one_bets:
                     # Get like count
@@ -167,7 +167,7 @@ def private_feed():
             friends_two = models.Friend.query.filter_by(user_from=user.id, status=1).all()
 
             for friend_two in friends_two:
-                friend_two_bets = models.Bet.query.filter_by(user_id=friend_two.user_to).all()
+                friend_two_bets = models.Bet.query.filter_by(creator_id=friend_two.user_to).all()
 
                 for friend_two_bet in friend_two_bets:
                     # Get like count
@@ -387,6 +387,66 @@ def my_pending_bets():
             response.status_code = 200
             return response
 
+######## My Open Bets ########
+@betRoutes.route('/bets/profile', methods=['POST'])
+def profile():
+
+    authClass = authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            bet_users = models.BetUsers.query.filter_by(user_id=user.id)
+
+            results = []
+
+            for bet_user in bet_users:
+                bet = models.Bet.query.filter_by(id=bet_user.bet_id).first()
+
+                # Get like count
+                count = models.Likes.query.filter_by(bet_id=bet.id).count()
+
+                # Get if the current user liked the bet
+                like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+
+                if like is 1:
+                    liked = True
+                else:
+                    liked = False
+
+                # Get users in bet
+                bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+                users = []
+
+                for bet_user in bet_users:
+                    user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                    users.append(user.toJSON)
+
+                # Make JSONobject
+                obj = bet.toJSON
+
+                obj['numLikes'] = count
+                obj['liked'] = liked
+                obj['users'] = users
+
+                results.append(obj)
+
+            response = jsonify({'bets': results})
+            response.status_code = 200
+            return response
+
+
+
+
 
 ######## Create Bet ########
 @betRoutes.route('/bets/create', methods=['POST'])
@@ -397,7 +457,7 @@ def create_bet():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
 
-        # print(payload)
+        print(payload)
 
         token = payload['authToken']
 
