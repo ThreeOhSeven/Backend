@@ -584,7 +584,7 @@ def complete_bet():
             db.session.delete(user)
             db.session.commit()
 
-    if numOfWinners == 0:
+    if numOfWinners != 0:
         amount = bet.pot // numOfWinners
     else:
         amount = -bet.amount
