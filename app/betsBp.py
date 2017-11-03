@@ -405,7 +405,7 @@ def profile():
             results = []
 
             for bet_user in bet_users:
-                bet = models.Bet.query.filter_by(id=bet.id)
+                bet = models.Bet.query.filter_by(id=bet_user.bet_id)
 
                 # Get like count
                 count = models.Likes.query.filter_by(bet_id=bet.id).count()
