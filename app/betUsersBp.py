@@ -262,4 +262,4 @@ def get_not_friends():
         }
         fnb_ob.append(ob)
 
-    return jsonify({'result' : True, 'fnb_list' : fnb_ob}), 200
+    return jsonify({'result' : True, 'users' : fnb_ob}), 200
