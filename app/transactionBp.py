@@ -47,5 +47,6 @@ def transaction(userID, betID, amount):
         return False
 
     # Record the transaction in the table
-    Transactions(userID, betID, amount)
+    transactionEntry = Transactions(userID, betID, amount)
+    transactionEntry.save()
     return True
