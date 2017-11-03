@@ -27,7 +27,7 @@ def fetchPoints():
 
         uid = user.id
 
-        user_points = db.session.query(Users).filter_by(user_id=uid).first()
+        user_points = db.session.query(User).filter_by(user_id=uid).first()
 
         return jsonify({'result' : True, 'current_balance' : user_points.current_balance})
     return jsonify({'result' : False})
