@@ -385,7 +385,7 @@ def my_pending_bets():
 
 ######## My Open Bets ########
 @betRoutes.route('/bets/profile', methods=['POST'])
-def my_open_bets():
+def profile():
 
     authClass = authBackend()
 
