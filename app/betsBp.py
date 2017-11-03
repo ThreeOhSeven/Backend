@@ -485,7 +485,7 @@ def create_bet():
 
             bet.save()
 
-            if transaction(user.id, bet.id, bet.amount) is False:
+            if user.current_balance < bet.amount:
                 db.session.delete(bet)
                 db.session.commit()
                 return jsonify({'result': False, 'error': 'Your balance is to low to create a bet'}), 400
