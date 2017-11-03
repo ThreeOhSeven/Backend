@@ -127,7 +127,7 @@ def private_feed():
             friends_one = models.Friend.query.filter_by(user_to=user.id, status=1).all()
 
             for friend_one in friends_one:
-                friend_one_bets = models.Bet.query.filter_by(user_id=friend_one.user_from).all()
+                friend_one_bets = models.Bet.query.filter_by(creator_id=friend_one.user_from).all()
 
                 for friend_one_bet in friend_one_bets:
                     # Get like count
@@ -163,7 +163,7 @@ def private_feed():
             friends_two = models.Friend.query.filter_by(user_from=user.id, status=1).all()
 
             for friend_two in friends_two:
-                friend_two_bets = models.Bet.query.filter_by(user_id=friend_two.user_to).all()
+                friend_two_bets = models.Bet.query.filter_by(creator_id=friend_two.user_to).all()
 
                 for friend_two_bet in friend_two_bets:
                     # Get like count
