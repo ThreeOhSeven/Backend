@@ -40,7 +40,7 @@ def join_bet():
         return jsonify({'result': False, 'error': 'The bet is full.'}), 400
 
     # Check that the user has enough currency to join the bet
-    userBalance = db.session.query(Users).filter_by(user_id=user.id).first()
+    userBalance = db.session.query(User).filter_by(user_id=user.id).first()
     if userBalance.current_balance < bet.amount:
         return jsonify({'result': False, 'error': 'User\'s balance is too low.'}), 400
 
