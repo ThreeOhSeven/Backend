@@ -1,5 +1,7 @@
 from flask import Blueprint, json, request, jsonify
 
+from pyfcm import FCMNotification
+
 userRoutes = Blueprint('users', __name__)
 
 from .authRoutines import *
@@ -128,3 +130,39 @@ def getEmailById():
 
     return jsonify({'result': True, 'error': '', 'email': user.email}), 200
 
+
+@userRoutes.route('/users/notifyAll', methods=['GET'])
+def notifyAll():
+    push_service = FCMNotification(api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
+
+    registration_id = "fBvbHdhYNd4:APA91bE_spuZqv94zeCCJ-Bsgp88pO1hjV3I6uqmB-MRentD03DLD5kX5LrpkGXSn0qW8e1m6UuQcyqIqoe4w6HMHCTE-hY6uUNWpBN7nwcGwejAtAHlYbzYPnHt4yWMox4catr9Zcsf"
+    message_title = "TEST"
+    message_body = "HI THIS IS A TEST"
+    result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                               message_body=message_body)
+
+    return jsonify({'result': True, 'error': ''}), 200
+
+
+@userRoutes.route('/users/updateDevice', methods=['POST'])
+def updateDeivce():
+    authClass = authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            user.device_id = payload['deviceId']
+
+            try:
+                user.save()
+                return jsonify({'result': True, 'error': ''}), 200
+            except:
+                return jsonify({'result': False, 'error': 'Failed to save deviceId'}), 400

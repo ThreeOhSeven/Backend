@@ -28,6 +28,7 @@ class User(db.Model):
                                   cascade="all, delete-orphan")
 
     current_balance = db.Column(db.Integer, nullable=False)
+    device_id = db.Column(db.String(128), unique=True, nullable=True)
 
     def __init__(self, username, email, birthday, current_balance=10):
         self.username = username

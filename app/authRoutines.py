@@ -31,7 +31,7 @@ class authBackend:
             userid = idinfo['email']
             return userid
         except ValueError:
-		    # Invalid token
+            # Invalid token
             return False
 
     def decode_jwt(self, jwtt):
