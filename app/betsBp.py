@@ -1,6 +1,6 @@
 from flask import request, jsonify, abort, Blueprint
 
-import requests
+import math
 import json
 from app import models
 from .authRoutines import *
@@ -387,6 +387,7 @@ def my_pending_bets():
             response.status_code = 200
             return response
 
+
 ######## My Open Bets ########
 @betRoutes.route('/bets/profile', methods=['POST'])
 def profile():
@@ -445,9 +446,6 @@ def profile():
             return response
 
 
-
-
-
 ######## Create Bet ########
 @betRoutes.route('/bets/create', methods=['POST'])
 def create_bet():
@@ -477,9 +475,10 @@ def create_bet():
             locked = payload['locked']
             side_a = payload['sideA']
             side_b = payload['sideB']
+            creation_time = datetime.datetime.now()
 
             try:
-                bet = models.Bet(creator, maxUsers, title, description, amount, locked, side_a, side_b)
+                bet = models.Bet(creator, maxUsers, title, description, amount, locked, side_a, side_b, creation_time)
             except AssertionError as e:
                 return jsonify({'result': False, 'error': e.message}), 400
 
@@ -539,6 +538,7 @@ def edit_bet():
 
                 return jsonify({'result': True, 'success': "Bet updated successfully"}), 200
 
+
 ######## Complete Bet ########
 @betRoutes.route('/bets/complete', methods=['POST'])
 def complete_bet():
@@ -571,6 +571,28 @@ def complete_bet():
     if bet.creator_id is not user.id:
         return jsonify({'result' : False, 'error' : 'Only the creator can mark the bet as complete'}), 400
 
+    # Confirm the bet for the creator
+    betUser = db.session.query(models.BetUsers).filter(and_(models.BetUsers.user_id == user.id,
+                                                            models.BetUsers.bet_id == bet.id)).first()
+
+    if betUser is None:
+        return jsonify({'result': False, 'error': 'User not in the bet'}), 400
+
+    betUser.confirmed = winner
+    betUser.save()
+
+    # Query for all active users in the bet
+    betUsersActive = db.session.query(models.BetUsers).filter(and_(models.BetUsers.bet_id == bet.id,
+                                                                   models.BetUsers.active == 1)).all()
+
+    for user in betUsersActive:
+        if user.confirmed is 2:
+            # Here we would send a notification to all betUsersActive to confirm the bet
+            return jsonify({'result': False, 'error': 'One or more users have not confirmed the bet'}), 400
+        if user.confirmed is not winner:
+            # Here we would send a notification to all betUsersActive to confirm the bet
+            return jsonify({'result': False, 'error': 'Not all users agree on a winner'}), 400
+
     # Handle the transactions
     betUsers = db.session.query(models.BetUsers).filter_by(bet_id=bet.id).all()
     betWinners = db.session.query(models.BetUsers).filter(and_(models.BetUsers.bet_id == bet.id,
@@ -599,3 +621,4 @@ def complete_bet():
     bet.save()
 
     return jsonify({'result': True, 'error': ''}), 200
+

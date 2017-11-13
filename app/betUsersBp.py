@@ -64,6 +64,7 @@ def join_bet():
 
     return jsonify({'result': True, 'error': ''}), 200
 
+
 @betUsersRoutes.route('/bets/send', methods=['POST'])
 def send_bet():
     if request.method != 'POST':
@@ -93,10 +94,11 @@ def send_bet():
         return jsonify({'result': False, 'error': 'The bet is full.'}), 400
 
     # Add the passive user to the bet
-    betUser = BetUsers(bet_id=bet.id, user_id=user.id, active=0, side=0)
+    betUser = BetUsers(bet_id=bet.id, user_id=user.id, active=0, side=0, confirmed=0)
     betUser.save()
 
     return jsonify({'result': True, 'error': ''}), 200
+
 
 @betUsersRoutes.route('/bets/accept', methods=['POST'])
 def accept_bet():
@@ -181,6 +183,7 @@ def reject_bet():
 
     return jsonify({'result': True, 'error': ''}), 200
 
+
 @betUsersRoutes.route('/bets/update/side', methods=['POST'])
 def update_side_bet():
     if request.method != 'POST':
@@ -215,6 +218,48 @@ def update_side_bet():
     betUser.save()
 
     return jsonify({'result': True, 'error': ''}), 200
+
+
+@betUsersRoutes.route('/bets/confirm', methods=['POST'])
+def confirm_bet():
+    if request.method != 'POST':
+        return jsonify({'result': False, 'error': "Invalid request"}), 400
+
+    # Authenticate the token and extract values from the request
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+    betID = payload['betID']
+    winner = payload['winner']
+
+    email = authClass.decode_jwt(token)
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+    user = db.session.query(User).filter_by(email=email).first()
+    bet = db.session.query(Bet).filter_by(id=betID).first()
+
+    if user is None:
+        return jsonify({'result': False, 'error': 'User not found'}), 400
+
+    if bet is None:
+        return jsonify({'result': False, 'error': 'Bet not found'}), 400
+
+    betUser = db.session.query(BetUsers).filter(and_(BetUsers.user_id == user.id,
+                                                     BetUsers.bet_id == bet.id)).first()
+
+    if betUser is None:
+        return jsonify({'result': False, 'error': 'User not in the bet'}), 400
+
+    betUser.confirmed = winner
+    betUser.save()
+
+    return jsonify({'result': True, 'error': ''}), 200
+
+    return
+
 
 @betUsersRoutes.route("/bets/friendsNot", methods = ["POST"])
 def get_not_friends():

@@ -105,13 +105,14 @@ class Bet(db.Model):
     pot = db.Column(db.Integer, nullable=False, default=0)
     side_a = db.Column(db.String(60), nullable=False, default='Yes')
     side_b = db.Column(db.String(60), nullable=False, default='No')
+    creation_time = db.Column(db.DateTime, nullable=True)
 
     # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
     likes = db.relationship('Likes', backref='bet', lazy=True)
     transactions = db.relationship('Transactions', backref='bet', lazy=True)
 
-    def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b):
+    def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b, creation_time):
         self.creator_id = creator_id
         self.max_users = max_users
         self.title = title
@@ -120,6 +121,7 @@ class Bet(db.Model):
         self.locked = locked
         self.side_a = side_a
         self.side_b = side_b
+        self.creation_time = creation_time
 
     def __repr__(self):
         return '<Bet id: {}>'.format(self.id)
@@ -149,7 +151,8 @@ class Bet(db.Model):
             'locked': self.locked,
             'complete': self.complete,
             'sideA': self.side_a,
-            'sideB': self.side_b
+            'sideB': self.side_b,
+            'creationTime': self.creation_time
         }
 
         return obj
@@ -167,13 +170,15 @@ class BetUsers(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     active = db.Column(db.Boolean, nullable=False, default=False)
     side = db.Column(db.Integer, nullable=False)
+    confirmed = db.Column(db.Integer, nullable=False, default=2)
 
 
-    def __init__(self, bet_id, user_id, active, side):
+    def __init__(self, bet_id, user_id, active, side, confirmed):
         self.bet_id = bet_id
         self.user_id = user_id
         self.active = active
         self.side = side
+        self.confirmed = confirmed
 
     def __repr__(self):
         return '<BetUsers id: {}>'.format(self.id)
