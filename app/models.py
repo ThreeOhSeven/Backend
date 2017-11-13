@@ -1,4 +1,6 @@
 from app import db
+import string
+import random
 
 class User(db.Model):
     """
@@ -258,4 +260,26 @@ class Transactions(db.Model):
 
     def delete(self):
         db.session.delete(self)
+        db.session.commit()
+
+class AddressBook(db.Model):
+
+    __tablename__ = 'AddressBook'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    account_hex = db.Column(db.Text, nullable=False)
+    bc_passphrase = db.Column(db.Text, nullable=False)
+
+    def __init__(self, user_id, account_hex):
+        self.user_id = user_id
+        self.account_hex = account_hex
+        self.bc_passphrase = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(40))
+
+    def __repr__(self):
+        return '<Account id: {}>'.format(self.id)
+
+    def save(self):
+        db.session.add(self)
         db.session.commit()
