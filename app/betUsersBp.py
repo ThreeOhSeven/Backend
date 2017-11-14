@@ -2,6 +2,7 @@ import flask
 from flask import request, jsonify, Blueprint
 import json
 from pyfcm import FCMNotification
+from app.config import Config
 
 from .models import User, Bet, BetUsers, Friend
 from .transactionBp import transaction
@@ -96,11 +97,11 @@ def send_bet():
     betUser = BetUsers(bet_id=bet.id, user_id=user.id, active=0, side=0)
     betUser.save()
 
-    # TODO - Notify user
+    # Notify user
     if(user.device_id):
         # Notify User
         push_service = FCMNotification(
-            api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
+            api_key=Config.FCM_API_KEY)
 
         registration_id = user.device_id
         message_title = "Bet Invite"

@@ -4,6 +4,9 @@ from sqlalchemy import or_, and_
 from app import db
 from .models import User, Friend
 
+from app.config import Config
+from pyfcm import FCMNotification
+
 friendsRoutes = Blueprint('friends', __name__)
 from .authBp import authBackend
 
@@ -169,6 +172,19 @@ def addFriend():
         new_friendship = Friend(user_to.id, user_from.id, 0)
         db.session.add(new_friendship)
         db.session.commit()
+
+        # Notify users
+        if (user_to.device_id):
+            # Notify User
+            push_service = FCMNotification(
+                api_key=Config.FCM_API_KEY)
+
+            registration_id = user_to.device_id
+            message_title = "Friend Request"
+            message_body = "You have a pending friend request from " + user_from.username
+            result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                                       message_body=message_body)
+
         return jsonify({'result': True, 'error': ''}), 200
     elif friendship.status == 1:
         return jsonify({'result': False, 'error': 'Users are already friends'}), 400

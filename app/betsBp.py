@@ -6,6 +6,8 @@ from app import models
 from .authRoutines import *
 from .transactionBp import transaction
 
+from pyfcm import FCMNotification
+
 from sqlalchemy import or_, and_
 
 betRoutes = Blueprint('betsBp', __name__)
@@ -539,6 +541,7 @@ def edit_bet():
 
                 return jsonify({'result': True, 'success': "Bet updated successfully"}), 200
 
+
 ######## Complete Bet ########
 @betRoutes.route('/bets/complete', methods=['POST'])
 def complete_bet():
@@ -583,6 +586,19 @@ def complete_bet():
         if user.active == 0:
             db.session.delete(user)
             db.session.commit()
+        else:
+            temp_user = db.session.query(models.User).filter_by(id=betUsers.user_id)
+
+            if temp_user.device_id:
+                # Notify User
+                push_service = FCMNotification(
+                    api_key=Config.FCM_API_KEY)
+
+                registration_id = temp_user.device_id
+                message_title = "Bet Complete"
+                message_body = "The bet " + bet.title + "has completed"
+                result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                                           message_body=message_body)
 
     if numOfWinners != 0:
         amount = bet.pot // numOfWinners
