@@ -156,7 +156,7 @@ class Bet(db.Model):
             'complete': self.complete,
             'sideA': self.side_a,
             'sideB': self.side_b,
-            'creationDate': self.creation_time
+            'creationTime': self.creation_time
         }
 
         return obj
