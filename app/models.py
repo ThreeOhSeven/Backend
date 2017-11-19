@@ -110,6 +110,9 @@ class Bet(db.Model):
     side_a = db.Column(db.String(60), nullable=False, default='Yes')
     side_b = db.Column(db.String(60), nullable=False, default='No')
     creation_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    color = db.Column(db.Integer, nullable=True)
+    icon = db.Column(db.Integer, nullable=True)
+
 
     # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
@@ -125,6 +128,8 @@ class Bet(db.Model):
         self.locked = locked
         self.side_a = side_a
         self.side_b = side_b
+        self.color = random.randint(0,9)
+        self.icon = random.randint(0, 9)
 
     def __repr__(self):
         return '<Bet id: {}>'.format(self.id)
@@ -155,7 +160,9 @@ class Bet(db.Model):
             'complete': self.complete,
             'sideA': self.side_a,
             'sideB': self.side_b,
-            'creationTime': self.creation_time
+            'creationTime': self.creation_time,
+            'color': self.color,
+            'icon': self.icon
         }
 
         return obj
