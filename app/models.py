@@ -128,6 +128,8 @@ class Bet(db.Model):
         self.locked = locked
         self.side_a = side_a
         self.side_b = side_b
+        self.color = random.randint(0,9)
+        self.icon = random.randint(0, 9)
 
     def __repr__(self):
         return '<Bet id: {}>'.format(self.id)
@@ -158,7 +160,9 @@ class Bet(db.Model):
             'complete': self.complete,
             'sideA': self.side_a,
             'sideB': self.side_b,
-            'creationTime': self.creation_time
+            'creationTime': self.creation_time,
+            'color': self.color,
+            'icon': self.icon
         }
 
         return obj
