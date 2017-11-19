@@ -110,6 +110,9 @@ class Bet(db.Model):
     side_a = db.Column(db.String(60), nullable=False, default='Yes')
     side_b = db.Column(db.String(60), nullable=False, default='No')
     creation_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    color = db.Column(db.Integer, nullable=True)
+    icon = db.Column(db.Integer, nullable=True)
+
 
     # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
