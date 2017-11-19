@@ -109,7 +109,7 @@ class Bet(db.Model):
     pot = db.Column(db.Integer, nullable=False, default=0)
     side_a = db.Column(db.String(60), nullable=False, default='Yes')
     side_b = db.Column(db.String(60), nullable=False, default='No')
-    creation_time = db.column(db.DateTime(), nullable=False)
+    creation_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
@@ -125,7 +125,6 @@ class Bet(db.Model):
         self.locked = locked
         self.side_a = side_a
         self.side_b = side_b
-        self.creation_time = datetime.utcnow()
 
     def __repr__(self):
         return '<Bet id: {}>'.format(self.id)
