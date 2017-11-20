@@ -1,4 +1,7 @@
 from app import db
+import string
+import random
+from datetime import datetime
 
 class User(db.Model):
     """
@@ -28,6 +31,7 @@ class User(db.Model):
                                   cascade="all, delete-orphan")
 
     current_balance = db.Column(db.Integer, nullable=False)
+    device_id = db.Column(db.String(256), unique=True, nullable=True)
 
     def __init__(self, username, email, birthday, current_balance=10):
         self.username = username
@@ -105,7 +109,9 @@ class Bet(db.Model):
     pot = db.Column(db.Integer, nullable=False, default=0)
     side_a = db.Column(db.String(60), nullable=False, default='Yes')
     side_b = db.Column(db.String(60), nullable=False, default='No')
-    creation_time = db.Column(db.DateTime, nullable=True)
+    creation_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    color = db.Column(db.Integer, nullable=True)
+    icon = db.Column(db.Integer, nullable=True)
 
     # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
@@ -122,6 +128,9 @@ class Bet(db.Model):
         self.side_a = side_a
         self.side_b = side_b
         self.creation_time = creation_time
+        self.color = random.randint(0,9)
+        self.icon = random.randint(0, 9)
+
 
     def __repr__(self):
         return '<Bet id: {}>'.format(self.id)
@@ -152,7 +161,9 @@ class Bet(db.Model):
             'complete': self.complete,
             'sideA': self.side_a,
             'sideB': self.side_b,
-            'creationTime': self.creation_time
+            'creationTime': self.creation_time,
+            'color': self.color,
+            'icon': self.icon
         }
 
         return obj
@@ -263,4 +274,26 @@ class Transactions(db.Model):
 
     def delete(self):
         db.session.delete(self)
+        db.session.commit()
+
+class AddressBook(db.Model):
+
+    __tablename__ = 'AddressBook'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    account_hex = db.Column(db.Text, nullable=False)
+    bc_passphrase = db.Column(db.Text, nullable=False)
+
+    def __init__(self, user_id, account_hex):
+        self.user_id = user_id
+        self.account_hex = account_hex
+        self.bc_passphrase = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(40))
+
+    def __repr__(self):
+        return '<Account id: {}>'.format(self.id)
+
+    def save(self):
+        db.session.add(self)
         db.session.commit()

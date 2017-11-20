@@ -1,6 +1,7 @@
 import flask
 from flask import request, jsonify, Blueprint
 import json
+from pyfcm import FCMNotification
 
 from .models import User, Bet, BetUsers, Friend
 from .transactionBp import transaction
@@ -54,8 +55,7 @@ def join_bet():
     if betUser is None:
         betUser = BetUsers(bet_id=betID, user_id=user.id, active=1, side=side)
     else:
-        betUser.side = side
-        betUser.active = 1
+        return jsonify({'result': False, 'error': 'User already in bet'}), 400
     betUser.save()
 
     # Update the user and bet balance accordingly
@@ -96,6 +96,18 @@ def send_bet():
     # Add the passive user to the bet
     betUser = BetUsers(bet_id=bet.id, user_id=user.id, active=0, side=0, confirmed=0)
     betUser.save()
+
+    # TODO - Notify user
+    if(user.device_id):
+        # Notify User
+        push_service = FCMNotification(
+            api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
+
+        registration_id = user.device_id
+        message_title = "Bet Invite"
+        message_body = "You've been invited to join " + user.username + "\'s bet"
+        result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                                   message_body=message_body)
 
     return jsonify({'result': True, 'error': ''}), 200
 

@@ -3,8 +3,11 @@ import requests
 from sqlalchemy import or_, and_
 from app import db
 from .models import User, Bet, Transactions
+from app.config import Config
+import stripe
 
 transactionRoutes = Blueprint('transaction', __name__)
+stripe.api_key = Config.STRIPE_TEST_KEY
 from .authBp import authBackend
 
 @transactionRoutes.route("/testRoute", methods = ["GET"])
@@ -50,3 +53,22 @@ def transaction(userID, betID, amount):
     transactionEntry = Transactions(userID, betID, amount)
     transactionEntry.save()
     return True
+
+@transactionRoutes.route("/payment/charge", methods = ["POST"])
+def chargeStripe():
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+        authClass = authBackend()
+        email = authClass.decode_jwt(token)
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        stripeToken = payload['stripeToken']
+        chargeAmt = payload['chargeAmount']
+        try:
+            charge = stripe.Charge.create(amount=chargeAmt, currency="usd", description="user deposit betcha", source = stripeToken)
+            return jsonify({'result' : True})
+        except Exception as e:
+            print(e)
+            return jsonify({'result' : False, 'error' : "error with card charge"}), 400
+    return jsonify({'result' : False, 'error' : "Invalid request"}), 400
