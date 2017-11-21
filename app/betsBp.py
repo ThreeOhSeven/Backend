@@ -583,7 +583,7 @@ def complete_bet():
             db.session.delete(user)
             db.session.commit()
         else:
-            temp_user = db.session.query(models.User).filter_by(id=user.id).first()
+            temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
             # Notify user
             if temp_user.device_id:
                 # Notify User
@@ -605,7 +605,7 @@ def complete_bet():
         if transaction(user.user_id, bet.id, -amount) is False:
             return jsonify({'result': False, 'error': 'Transaction error'}), 400
         else:
-            temp_user = db.session.query(models.User).filter_by(id=user.id).first()
+            temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
             # Notify user
             if temp_user.device_id:
                 # Notify User
