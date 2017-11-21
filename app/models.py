@@ -184,12 +184,11 @@ class BetUsers(db.Model):
     confirmed = db.Column(db.Integer, nullable=False, default=2)
 
 
-    def __init__(self, bet_id, user_id, active, side, confirmed):
+    def __init__(self, bet_id, user_id, active, side):
         self.bet_id = bet_id
         self.user_id = user_id
         self.active = active
         self.side = side
-        self.confirmed = confirmed
 
     def __repr__(self):
         return '<BetUsers id: {}>'.format(self.id)
