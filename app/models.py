@@ -32,6 +32,8 @@ class User(db.Model):
 
     current_balance = db.Column(db.Integer, nullable=False)
     device_id = db.Column(db.String(256), unique=True, nullable=True)
+    wins = db.Column(db.Integer, default=0)
+    loses = db.Column(db.Integer, default=0)
 
     def __init__(self, username, email, birthday, current_balance=10):
         self.username = username
