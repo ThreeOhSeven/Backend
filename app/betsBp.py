@@ -583,8 +583,9 @@ def complete_bet():
             db.session.delete(user)
             db.session.commit()
         else:
+            temp_user = db.session.query(models.User).filter_by(id=user.id).first()
             # Notify user
-            if user.device_id:
+            if temp_user.device_id:
                 # Notify User
                 push_service = FCMNotification(
                     api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
@@ -604,8 +605,9 @@ def complete_bet():
         if transaction(user.user_id, bet.id, -amount) is False:
             return jsonify({'result': False, 'error': 'Transaction error'}), 400
         else:
+            temp_user = db.session.query(models.User).filter_by(id=user.id).first()
             # Notify user
-            if user.device_id:
+            if temp_user.device_id:
                 # Notify User
                 push_service = FCMNotification(
                     api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
