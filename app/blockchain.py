@@ -5,13 +5,14 @@ from app import db
 from .models import User, AddressBook
 import string
 import random
+from eth_utils import decode_hex
 
 class BlockchainTransact:
 
     def __init__(self):
         self.parentAccount = "0x001ebfeb4539388ede520f6374fab6f91200f89d"
         self.parentPass = "cwTYyo2oFX5c52MbnEAuPpDCoCNwQPolIUYx5lJH"
-        self.w3 = Web3(HTTPProvider('http://localhost:8545'))
+        self.w3 = Web3(HTTPProvider('http://18.220.176.148:8545'))
         f = open("app/Betrc.sol")
         cc = f.read()
         f.close()
@@ -61,6 +62,7 @@ class BlockchainTransact:
         if bcAddr is None:
             newAcc = self.make_new_account(user.id)
             return 0
-        accHex = bcAddr.account_hex
-        account_balance = self.w3.balanceOf(accHex)
+        accHex = str(bcAddr.account_hex)
+        accHex = accHex[:-1]
+        account_balance = self.contractInstance.balanceOf(decode_hex(accHex))
         return account_balance
