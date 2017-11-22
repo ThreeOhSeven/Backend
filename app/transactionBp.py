@@ -5,6 +5,7 @@ from app import db
 from .models import User, Bet, Transactions
 from app.config import Config
 import stripe
+from .blockchain import *
 
 transactionRoutes = Blueprint('transaction', __name__)
 stripe.api_key = Config.STRIPE_TEST_KEY
@@ -67,6 +68,8 @@ def chargeStripe():
         chargeAmt = payload['chargeAmount']
         try:
             charge = stripe.Charge.create(amount=chargeAmt, currency="usd", description="user deposit betcha", source = stripeToken)
+            bcOb = BlockchainTransact()
+            blockchainPaySuccess = bcOb.newPayment(email, chargeAmt)
             return jsonify({'result' : True})
         except Exception as e:
             print(e)
