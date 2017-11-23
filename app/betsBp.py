@@ -579,50 +579,21 @@ def complete_bet():
     betUser.save()
 
     # Find the betCreator
+
     betCreator = db.session.query(models.BetUsers).filter(and_(models.BetUsers.user_id == bet.creator_id,
                                                                models.BetUsers.bet_id == bet.id)).first()
 
-    # Query for all active users in the bet
-    betUsersActive = db.session.query(models.BetUsers).filter(and_(models.BetUsers.bet_id == bet.id,
-                                                                   models.BetUsers.active == 1)).all()
-
-    # list of users that are unconfirmed
-    betUsersUnconfirmed = None
-    betUsersDisagree = None
-
-    for user in betUsersActive:
-        if user.confirmed is 2:
-            betUsersUnconfirmed.append(user)
-        if user.winner is not winner:
-            betUsersDisagree.append(user)
-
-    if betUsersUnconfirmed is None and betUsersDisagree is None:
-        return bet_completion(bet, winner)
-    if betUsersUnconfirmed is None and betUsersDisagree is not None:
-        title = bet.title + " had disagreement of the winner"
-        message = "Please make sure you selected the correct side."
-        return bet_notification(betUsersDisagree, title, message)
-    if betUsersUnconfirmed is not None and firstComplete and betCreator.user_id is user.id:
-        title = "Confirm " + bet.title
-        message = "Please confirm the winner of " + bet.title + "."
-        return bet_notification(betUsersDisagree, title, message)
-
-
-def bet_notification(betUsers, title, message):
-    push_service = FCMNotification(
-        api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
-
-    registration_ids = None
+    betUsers = db.session.query(models.BetUsers).filter_by(bet_id=bet.id).all()
+    betUsersActive = []
 
     for user in betUsers:
-        registration_ids.append(user.device_id)
+        if user.active is 0:
+            db.session.delete(user)
+            db.session.commit()
+        else:
+            betUsersActive.append(user)
 
-    message_title = title
-    message_body = message
-    result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title,
-                                                  message_body=message_body)
-
-    return jsonify({'result': True, 'error': ''}), 200
+    return bet_completion(bet, winner)
 
 
 def bet_completion(bet, winner):
@@ -631,6 +602,9 @@ def bet_completion(bet, winner):
     betWinners = db.session.query(models.BetUsers).filter(and_(models.BetUsers.bet_id == bet.id,
                                                                models.BetUsers.active == 1,
                                                                models.BetUsers.side == winner)).all()
+    betLosers = db.session.query(models.BetUsers).filter(and_(models.BetUsers.bet_id == bet.id,
+                                                               models.BetUsers.active == 1,
+                                                               models.BetUsers.side != winner)).all()
 
     numOfWinners = len(betWinners)
     # Delete all users that did not accept invites and get the total count of users
@@ -660,4 +634,5 @@ def bet_completion(bet, winner):
     # Send bet completion notifications
     title = bet.title + " has been completed"
     message = "The winning side is " + bet.side_b if winner else "The winning side is " + bet.side_a
-    return bet_notification(betUsersActive, title, message)
+    return jsonify({'result': True, 'error': ""}), 200
+    #return bet_notification(betUsersActive, title, message)
