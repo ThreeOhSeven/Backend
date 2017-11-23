@@ -170,16 +170,7 @@ def updateDeivce():
 
 @userRoutes.route('/admin', methods=['GET'])
 def displayAdmin():
-    feedbacks = [
-        {
-            "email": "yopickles",
-            "text": "This app freaking sucks"
-        },
-        {
-            "email": "notpickles",
-            "text": "I love you all :D"
-        }
-    ]
+    feedbacks = Feedback.query.join(User).add_columns(Feedback.text, User.email).all()
     return render_template("admin.html", feedbacks=feedbacks)
 
 
