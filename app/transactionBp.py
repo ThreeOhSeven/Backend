@@ -31,9 +31,11 @@ def fetchPoints():
 
         uid = user.id
 
-        user_points = db.session.query(User).filter_by(id=uid).first()
+        # user_points = db.session.query(User).filter_by(id=uid).first()
+        bcOb = BlockchainTransact()
+        user_points = bcOb.getBalance(email)
 
-        return jsonify({'result' : True, 'current_balance' : user_points.current_balance})
+        return jsonify({'result' : True, 'current_balance' : user_points})
     return jsonify({'result' : False})
 
 # Transactions are always user to bet postive or negative
