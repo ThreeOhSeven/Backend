@@ -64,6 +64,7 @@ def join_bet():
 
     return jsonify({'result': True, 'error': ''}), 200
 
+
 @betUsersRoutes.route('/bets/send', methods=['POST'])
 def send_bet():
     if request.method != 'POST':
@@ -93,7 +94,7 @@ def send_bet():
         return jsonify({'result': False, 'error': 'The bet is full.'}), 400
 
     # Add the passive user to the bet
-    betUser = BetUsers(bet_id=bet.id, user_id=user.id, active=0, side=0)
+    betUser = BetUsers(bet_id=bet.id, user_id=user.id, active=0, side=0, confirmed=0)
     betUser.save()
 
     # TODO - Notify user
@@ -109,6 +110,7 @@ def send_bet():
                                                    message_body=message_body)
 
     return jsonify({'result': True, 'error': ''}), 200
+
 
 @betUsersRoutes.route('/bets/accept', methods=['POST'])
 def accept_bet():
@@ -193,6 +195,7 @@ def reject_bet():
 
     return jsonify({'result': True, 'error': ''}), 200
 
+
 @betUsersRoutes.route('/bets/update/side', methods=['POST'])
 def update_side_bet():
     if request.method != 'POST':
@@ -227,6 +230,7 @@ def update_side_bet():
     betUser.save()
 
     return jsonify({'result': True, 'error': ''}), 200
+
 
 @betUsersRoutes.route("/bets/friendsNot", methods = ["POST"])
 def get_not_friends():
