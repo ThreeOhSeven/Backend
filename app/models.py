@@ -298,3 +298,24 @@ class AddressBook(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+
+class Feedback(db.Model):
+
+    __tablename__ = 'Feedback'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+
+    def __init__(self, user_id, text):
+        self.user_id = user_id
+        self.text = text
+
+    def __repr__(self):
+        return '<Feedback id: {}>'.format(self.id)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
