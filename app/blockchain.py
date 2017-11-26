@@ -27,6 +27,10 @@ class BlockchainTransact:
         unlockcRes = self.w3.personal.unlockAccount(self.parentAccount, self.parentPass)
         return unlockcRes
 
+    def unlock_user(self, account_hex, bc_passphrase):
+        unlockRes = self.w3.personal.unlockAccount(account_hex, bc_passphrase)
+        return unlockRes
+
     def make_new_account(self, userID):
         newkey = self.generate_random_passkey(40)
         newAcc = self.w3.personal.newAccount(newkey)
@@ -54,8 +58,52 @@ class BlockchainTransact:
             return True, txHash
         return False
 
+    def newPayment_with_uid(self, userID, amount):
+        bcAddr = db.session.query(AddressBook).filter_by(user_id=userID).first()
+        if bcAddr is None:
+            newAcc = self.make_new_account(user.id)
+            unlockres = self.unlock_master()
+            if unlockres:
+                txHash = self.w3.transfer(newAcc, amount, transact={'from' : self.parentAccount})
+                return True, txHash
+            return False
+        accHex = bcAddr.account_hex
+        unlockres = self.unlock_master()
+        if unlockres:
+            txHash = self.w3.transfer(accHex, amount, transact={'from' : self.parentAccount})
+            return True, txHash
+        return False
+
+    def withdraw_from_user(self, userID, amount):
+        bcAddr = db.session.query(AddressBook).filter_by(user_id=userID).first()
+        if bcAddr is None:
+            return False
+        accHex = bcAddr.account_hex
+        unlockPhr = bcAddr.bc_passphrase
+        unlockRes = self.unlock_user(accHex, unlockPhr)
+        if unlockRes:
+            #successful unlock of account
+            txHash = self.w3.transfer(self.parentAccount, amount, transact={'from' : accHex})
+            return True, txHash
+        else:
+            return False
+        return False
+
     def getBalance(self, email):
         user = db.session.query(User).filter_by(email=email).first()
+        if user is None:
+            return False
+        bcAddr = db.session.query(AddressBook).filter_by(user_id=user.id).first()
+        if bcAddr is None:
+            newAcc = self.make_new_account(user.id)
+            return 0
+        accHex = str(bcAddr.account_hex)
+        accHex = accHex[:-1]
+        account_balance = self.contractInstance.balanceOf(decode_hex(accHex))
+        return account_balance
+
+    def getBalance_from_uid(self, userID):
+        user = db.session.query(User).filter_by(id=userID).first()
         if user is None:
             return False
         bcAddr = db.session.query(AddressBook).filter_by(user_id=user.id).first()

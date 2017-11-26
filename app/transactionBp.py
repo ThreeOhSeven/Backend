@@ -43,19 +43,38 @@ def transaction(userID, betID, amount):
     bet = db.session.query(Bet).filter_by(id=betID).first()
 
     user = db.session.query(User).filter_by(id=userID).first()
+    bcOb = BlockchainTransact()
+    current_balance = getBalance_from_uid(userID)
 
-    if user.current_balance - amount >= 0 and bet.pot + amount >= 0:
-        user.current_balance -= amount
+    if current_balance - amount >= 0 and bet.pot + amount >= 0:
+        # user.current_balance -= amount
         bet.pot += amount
-        user.save()
+        # user.save()
         bet.save()
     else:
         return False
 
-    # Record the transaction in the table
-    transactionEntry = Transactions(userID, betID, amount)
-    transactionEntry.save()
-    return True
+    if amount < 0:
+        #bet to user
+        result, tx = bcOb.newPayment_with_uid(userID, abs(amount))
+        print("tx: ", tx)
+        print("toUser: ", userID)
+        # Record the transaction in the table
+        transactionEntry = Transactions(userID, betID, amount)
+        transactionEntry.save()
+        return result
+    else:
+        #user to bet
+        result, tx = bcOb.withdraw_from_user(userID, amount)
+        print("tx: ", tx)
+        print("fromUser: ", userID)
+
+        # Record the transaction in the table
+        transactionEntry = Transactions(userID, betID, amount)
+        transactionEntry.save()
+        return result
+
+    return False
 
 @transactionRoutes.route("/payment/charge", methods = ["POST"])
 def chargeStripe():
