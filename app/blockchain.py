@@ -30,7 +30,7 @@ class BlockchainTransact:
     def make_new_account(self, userID):
         newkey = self.generate_random_passkey(40)
         newAcc = self.w3.personal.newAccount(newkey)
-        newAdbook = AddressBook(user.id, newAcc, newkey)
+        newAdbook = AddressBook(userID, newAcc, newkey)
         db.session.add(newAdbook)
         db.session.commit()
         return newAcc

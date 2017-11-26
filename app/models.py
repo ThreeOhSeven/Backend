@@ -287,10 +287,10 @@ class AddressBook(db.Model):
     account_hex = db.Column(db.Text, nullable=False)
     bc_passphrase = db.Column(db.Text, nullable=False)
 
-    def __init__(self, user_id, account_hex):
+    def __init__(self, user_id, account_hex, bc_passphrase):
         self.user_id = user_id
         self.account_hex = account_hex
-        self.bc_passphrase = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(40))
+        self.bc_passphrase = bc_passphrase
 
     def __repr__(self):
         return '<Account id: {}>'.format(self.id)

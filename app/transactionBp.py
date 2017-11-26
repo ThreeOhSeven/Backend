@@ -69,7 +69,7 @@ def chargeStripe():
         stripeToken = payload['stripeToken']
         chargeAmt = payload['chargeAmount']
         try:
-            charge = stripe.Charge.create(amount=chargeAmt, currency="usd", description="user deposit betcha", source = stripeToken)
+            # charge = stripe.Charge.create(amount=chargeAmt, currency="usd", description="user deposit betcha", source = stripeToken)
             bcOb = BlockchainTransact()
             blockchainPaySuccess = bcOb.newPayment(email, chargeAmt)
             return jsonify({'result' : True})
