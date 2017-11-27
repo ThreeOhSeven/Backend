@@ -464,7 +464,7 @@ def user_profile():
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
             user_id = payload['userId']
-            other_user = User.query.filter_by(id=user_id).first()
+            other_user = User.query.filter_by(id=user_id).first().toJSON
             bet_users = models.BetUsers.query.filter_by(user_id=user_id)
 
             results = []
