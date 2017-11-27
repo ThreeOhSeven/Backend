@@ -446,6 +446,65 @@ def profile():
             response.status_code = 200
             return response
 
+######## User Profile ########
+@betRoutes.route('/bets/userProfile', methods=['POST'])
+def user_profile():
+
+    authClass = authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            user_id = payload['userId']
+            other_user = User.query.filter_by(id=user_id).first()
+            bet_users = models.BetUsers.query.filter_by(user_id=user_id)
+
+            results = []
+
+            for bet_user in bet_users:
+                bet = models.Bet.query.filter_by(id=bet_user.bet_id).first()
+
+                # Get like count
+                count = models.Likes.query.filter_by(bet_id=bet.id).count()
+
+                # Get if the current user liked the bet
+                like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+
+                if like is 1:
+                    liked = True
+                else:
+                    liked = False
+
+                # Get users in bet
+                bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+                users = []
+
+                for bet_user in bet_users:
+                    user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                    users.append(user.toJSON)
+
+                # Make JSONobject
+                obj = bet.toJSON
+
+                obj['numLikes'] = count
+                obj['liked'] = liked
+                obj['users'] = users
+
+                results.append(obj)
+
+            response = jsonify({'user': other_user, 'bets': results})
+            response.status_code = 200
+            return response
+
 
 ######## Create Bet ########
 @betRoutes.route('/bets/create', methods=['POST'])
