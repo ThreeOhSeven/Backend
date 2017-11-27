@@ -5,6 +5,7 @@ import json
 from app import models
 from .authRoutines import *
 from .transactionBp import transaction
+from pyfcm import FCMNotification
 
 from sqlalchemy import or_, and_
 from pyfcm import FCMNotification
@@ -612,6 +613,19 @@ def bet_completion(bet, winner):
         if user.active == 0:
             db.session.delete(user)
             db.session.commit()
+        else:
+            temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
+            # Notify user
+            if temp_user.device_id:
+                # Notify User
+                push_service = FCMNotification(
+                    api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
+
+                registration_id = temp_user.device_id
+                message_title = "You Lost"
+                message_body = bet.title + " has completed"
+                result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                                           message_body=message_body)
 
     if numOfWinners != 0:
         amount = bet.pot // numOfWinners
@@ -621,6 +635,19 @@ def bet_completion(bet, winner):
     for user in betWinners:
         if transaction(user.user_id, bet.id, -amount) is False:
             return jsonify({'result': False, 'error': 'Transaction error'}), 400
+        else:
+            temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
+            # Notify user
+            if temp_user.device_id:
+                # Notify User
+                push_service = FCMNotification(
+                    api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
+
+                registration_id = temp_user.device_id
+                message_title = "You Won"
+                message_body = bet.title + " has completed"
+                result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                                           message_body=message_body)
 
     bet.complete = 1
     bet.locked = 1

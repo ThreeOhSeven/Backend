@@ -1,4 +1,4 @@
-from flask import Blueprint, json, request, jsonify
+from flask import Blueprint, json, request, jsonify, render_template
 
 from pyfcm import FCMNotification
 
@@ -166,3 +166,30 @@ def updateDeivce():
                 return jsonify({'result': True, 'error': ''}), 200
             except:
                 return jsonify({'result': False, 'error': 'Failed to save deviceId'}), 400
+
+
+@userRoutes.route('/admin', methods=['GET'])
+def displayAdmin():
+    feedbacks = Feedback.query.join(User).add_columns(Feedback.text, User.email).all()
+    return render_template("admin.html", feedbacks=feedbacks)
+
+
+@userRoutes.route('/feedback', methods=['POST'])
+def post_feedback():
+    authClass = authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            text = payload['text']
+            feedback = Feedback(user_id=user.id, text=text)
+            feedback.save()
+            return jsonify({'result': True, 'error':'' }), 200

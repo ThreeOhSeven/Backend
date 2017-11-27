@@ -108,7 +108,7 @@ def send_bet():
 
         registration_id = user.device_id
         message_title = "Bet Invite"
-        message_body = "You've been invited to join " + user.username + "\'s bet"
+        message_body = "You've been invited to join " + user.email + "\'s bet"
         result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
                                                    message_body=message_body)
 
