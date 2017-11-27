@@ -44,7 +44,7 @@ def transaction(userID, betID, amount):
 
     user = db.session.query(User).filter_by(id=userID).first()
     bcOb = BlockchainTransact()
-    current_balance = getBalance_from_uid(userID)
+    current_balance = bcOb.getBalance_from_uid(userID)
 
     if current_balance - amount >= 0 and bet.pot + amount >= 0:
         # user.current_balance -= amount
@@ -88,7 +88,7 @@ def chargeStripe():
         stripeToken = payload['stripeToken']
         chargeAmt = payload['chargeAmount']
         try:
-            # charge = stripe.Charge.create(amount=chargeAmt, currency="usd", description="user deposit betcha", source = stripeToken)
+            charge = stripe.Charge.create(amount=chargeAmt, currency="usd", description="user deposit betcha", source = stripeToken)
             bcOb = BlockchainTransact()
             blockchainPaySuccess = bcOb.newPayment(email, chargeAmt)
             return jsonify({'result' : True})
