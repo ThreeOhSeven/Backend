@@ -162,9 +162,9 @@ def get_record():
                 else:
                     loss += 1
 
-        record = '{}-{}'.format(win, loss)
 
-        return jsonify({'result': True, 'error': '', 'record': record}), 200
+
+        return jsonify({'result': True, 'error': '', 'wins': win, 'losses': loss}), 200
 
 
 @userRoutes.route('/users/notifyAll', methods=['GET'])
