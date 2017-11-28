@@ -162,7 +162,39 @@ def get_record():
                 else:
                     loss += 1
 
+        return jsonify({'result': True, 'error': '', 'wins': win, 'losses': loss}), 200
 
+
+@userRoutes.route('/users/get/record/other', methods=['POST'])
+def get_other_record():
+    if request.method != 'POST':
+        return jsonify({'result': False, 'error': "Invalid request"}), 400
+
+    # Get the user's token from 'authToken'
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+    user_id = payload['userId']
+
+    email = authClass.decode_jwt(token)
+
+    user = User.query.filter_by(id=user_id).first()
+
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+    else:
+        win = 0
+        loss = 0
+
+        bet_use = BetUsers.query.filter_by(user_id=user.id).all()
+
+        for bet_user in bet_use:
+            temp_bet = Bet.query.filter_by(id=bet_user.bet_id).first()
+
+            if temp_bet.complete:
+                if temp_bet.winner == bet_user.side:
+                    win += 1
+                else:
+                    loss += 1
 
         return jsonify({'result': True, 'error': '', 'wins': win, 'losses': loss}), 200
 
