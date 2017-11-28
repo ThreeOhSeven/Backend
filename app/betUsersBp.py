@@ -7,6 +7,7 @@ from .models import User, Bet, BetUsers, Friend
 from .transactionBp import transaction
 from sqlalchemy import or_, and_
 from .authRoutines import *
+from .blockchain import *
 
 betUsersRoutes = Blueprint('betUsersBp', __name__)
 
@@ -30,6 +31,8 @@ def join_bet():
     user = db.session.query(User).filter_by(email=email).first()
     bet = db.session.query(Bet).filter_by(id=betID).first()
 
+    bcOb = BlockchainTransact()
+    current_balance = bcOb.getBalance(email)
     if user is None:
         return jsonify({'result': False, 'error': 'User not found'}), 400
 
@@ -46,7 +49,7 @@ def join_bet():
         return jsonify({'result': False, 'error': 'The bet is locked or complete'}), 400
 
     # Check that the user has enough currency to join the bet
-    if user.current_balance < bet.amount:
+    if current_balance < bet.amount:
         return jsonify({'result': False, 'error': 'User\'s balance is too low.'}), 400
 
     # Check if this request is an accept or a join
@@ -63,6 +66,7 @@ def join_bet():
         return jsonify({'result': True, 'error': 'Transaction error'}), 400
 
     return jsonify({'result': True, 'error': ''}), 200
+
 
 @betUsersRoutes.route('/bets/send', methods=['POST'])
 def send_bet():
@@ -93,7 +97,7 @@ def send_bet():
         return jsonify({'result': False, 'error': 'The bet is full.'}), 400
 
     # Add the passive user to the bet
-    betUser = BetUsers(bet_id=bet.id, user_id=user.id, active=0, side=0)
+    betUser = BetUsers(bet_id=bet.id, user_id=user.id, active=0, side=0, confirmed=0)
     betUser.save()
 
     # TODO - Notify user
@@ -109,6 +113,7 @@ def send_bet():
                                                    message_body=message_body)
 
     return jsonify({'result': True, 'error': ''}), 200
+
 
 @betUsersRoutes.route('/bets/accept', methods=['POST'])
 def accept_bet():
@@ -127,6 +132,8 @@ def accept_bet():
 
     user = db.session.query(User).filter_by(email=email).first()
     bet = db.session.query(Bet).filter_by(id=betID).first()
+    bcOb = BlockchainTransact()
+    current_balance = bcOb.getBalance(email)
 
     if user is None:
         return jsonify({'result': False, 'error': 'User not found'}), 400
@@ -135,7 +142,7 @@ def accept_bet():
         return jsonify({'result': False, 'error': 'Bet not found'}), 400
 
     # Check that the user has enough currency to join the bet
-    if user.current_balance < bet.amount:
+    if current_balance < bet.amount:
         return jsonify({'result': False, 'error': 'User\'s balance is too low.'}), 400
 
     # Check to see if bet is locked or complete
@@ -193,6 +200,7 @@ def reject_bet():
 
     return jsonify({'result': True, 'error': ''}), 200
 
+
 @betUsersRoutes.route('/bets/update/side', methods=['POST'])
 def update_side_bet():
     if request.method != 'POST':
@@ -227,6 +235,7 @@ def update_side_bet():
     betUser.save()
 
     return jsonify({'result': True, 'error': ''}), 200
+
 
 @betUsersRoutes.route("/bets/friendsNot", methods = ["POST"])
 def get_not_friends():

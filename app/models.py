@@ -32,6 +32,8 @@ class User(db.Model):
 
     current_balance = db.Column(db.Integer, nullable=False)
     device_id = db.Column(db.String(256), unique=True, nullable=True)
+    wins = db.Column(db.Integer, default=0)
+    loses = db.Column(db.Integer, default=0)
 
     def __init__(self, username, email, birthday, current_balance=10):
         self.username = username
@@ -110,13 +112,15 @@ class Bet(db.Model):
     side_a = db.Column(db.String(60), nullable=False, default='Yes')
     side_b = db.Column(db.String(60), nullable=False, default='No')
     creation_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    color = db.Column(db.Integer, nullable=True)
+    icon = db.Column(db.Integer, nullable=True)
 
     # One to Many
     bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
     likes = db.relationship('Likes', backref='bet', lazy=True)
     transactions = db.relationship('Transactions', backref='bet', lazy=True)
 
-    def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b):
+    def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b, creation_time):
         self.creator_id = creator_id
         self.max_users = max_users
         self.title = title
@@ -125,6 +129,10 @@ class Bet(db.Model):
         self.locked = locked
         self.side_a = side_a
         self.side_b = side_b
+        self.creation_time = creation_time
+        self.color = random.randint(0,9)
+        self.icon = random.randint(0, 9)
+
 
     def __repr__(self):
         return '<Bet id: {}>'.format(self.id)
@@ -155,7 +163,9 @@ class Bet(db.Model):
             'complete': self.complete,
             'sideA': self.side_a,
             'sideB': self.side_b,
-            'creationTime': self.creation_time
+            'creationTime': self.creation_time,
+            'color': self.color,
+            'icon': self.icon
         }
 
         return obj
@@ -173,6 +183,7 @@ class BetUsers(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     active = db.Column(db.Boolean, nullable=False, default=False)
     side = db.Column(db.Integer, nullable=False)
+    confirmed = db.Column(db.Integer, nullable=False, default=2)
 
 
     def __init__(self, bet_id, user_id, active, side):
@@ -276,13 +287,34 @@ class AddressBook(db.Model):
     account_hex = db.Column(db.Text, nullable=False)
     bc_passphrase = db.Column(db.Text, nullable=False)
 
-    def __init__(self, user_id, account_hex):
+    def __init__(self, user_id, account_hex, bc_passphrase):
         self.user_id = user_id
         self.account_hex = account_hex
-        self.bc_passphrase = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(40))
+        self.bc_passphrase = bc_passphrase
 
     def __repr__(self):
         return '<Account id: {}>'.format(self.id)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+
+class Feedback(db.Model):
+
+    __tablename__ = 'Feedback'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+
+    def __init__(self, user_id, text):
+        self.user_id = user_id
+        self.text = text
+
+    def __repr__(self):
+        return '<Feedback id: {}>'.format(self.id)
 
     def save(self):
         db.session.add(self)

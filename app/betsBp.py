@@ -1,6 +1,6 @@
 from flask import request, jsonify, abort, Blueprint
 
-import requests
+import math
 import json
 from app import models
 from .authRoutines import *
@@ -8,6 +8,7 @@ from .transactionBp import transaction
 from pyfcm import FCMNotification
 
 from sqlalchemy import or_, and_
+from pyfcm import FCMNotification
 
 betRoutes = Blueprint('betsBp', __name__)
 
@@ -16,7 +17,6 @@ authClass = authBackend()
 #######################################################################################
 ####                                     FEEDS                                     ####
 #######################################################################################
-
 
 ######## Public Feed ########
 @betRoutes.route('/publicfeed', methods=['POST'])
@@ -388,6 +388,7 @@ def my_pending_bets():
             response.status_code = 200
             return response
 
+
 ######## My Open Bets ########
 @betRoutes.route('/bets/profile', methods=['POST'])
 def profile():
@@ -445,8 +446,64 @@ def profile():
             response.status_code = 200
             return response
 
+######## User Profile ########
+@betRoutes.route('/bets/userProfile', methods=['POST'])
+def user_profile():
 
+    authClass = authBackend()
 
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            user_id = payload['userId']
+            other_user = User.query.filter_by(id=user_id).first().toJSON
+            bet_users = models.BetUsers.query.filter_by(user_id=user_id)
+
+            results = []
+
+            for bet_user in bet_users:
+                bet = models.Bet.query.filter_by(id=bet_user.bet_id).first()
+
+                # Get like count
+                count = models.Likes.query.filter_by(bet_id=bet.id).count()
+
+                # Get if the current user liked the bet
+                like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+
+                if like is 1:
+                    liked = True
+                else:
+                    liked = False
+
+                # Get users in bet
+                bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+                users = []
+
+                for bet_user in bet_users:
+                    user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                    users.append(user.toJSON)
+
+                # Make JSONobject
+                obj = bet.toJSON
+
+                obj['numLikes'] = count
+                obj['liked'] = liked
+                obj['users'] = users
+
+                results.append(obj)
+
+            response = jsonify({'user': other_user, 'bets': results})
+            response.status_code = 200
+            return response
 
 
 ######## Create Bet ########
@@ -478,9 +535,10 @@ def create_bet():
             locked = payload['locked']
             side_a = payload['sideA']
             side_b = payload['sideB']
+            creation_time = datetime.datetime.now()
 
             try:
-                bet = models.Bet(creator, maxUsers, title, description, amount, locked, side_a, side_b)
+                bet = models.Bet(creator, maxUsers, title, description, amount, locked, side_a, side_b, creation_time)
             except AssertionError as e:
                 return jsonify({'result': False, 'error': e.message}), 400
 
@@ -566,15 +624,47 @@ def complete_bet():
     if bet is None:
         return jsonify({'result': False, 'error': 'Bet not found'}), 400
 
-    # Check to see if the user calling complete is the creator
-    if bet.creator_id is not user.id:
-        return jsonify({'result' : False, 'error' : 'Only the creator can mark the bet as complete'}), 400
 
+    betUser = db.session.query(models.BetUsers).filter(and_(models.BetUsers.user_id == user.id,
+                                                            models.BetUsers.bet_id == bet.id)).first()
+
+    if betUser is None:
+        return jsonify({'result': False, 'error': 'User not in the bet'}), 400
+
+    firstComplete = False
+    if betUser.confirmed is 2:
+        firstComplete = True
+
+    betUser.confirmed = winner
+    betUser.save()
+
+    # Find the betCreator
+
+    betCreator = db.session.query(models.BetUsers).filter(and_(models.BetUsers.user_id == bet.creator_id,
+                                                               models.BetUsers.bet_id == bet.id)).first()
+
+    betUsers = db.session.query(models.BetUsers).filter_by(bet_id=bet.id).all()
+    betUsersActive = []
+
+    for user in betUsers:
+        if user.active is 0:
+            db.session.delete(user)
+            db.session.commit()
+        else:
+            betUsersActive.append(user)
+
+    return bet_completion(bet, winner)
+
+
+def bet_completion(bet, winner):
     # Handle the transactions
     betUsers = db.session.query(models.BetUsers).filter_by(bet_id=bet.id).all()
     betWinners = db.session.query(models.BetUsers).filter(and_(models.BetUsers.bet_id == bet.id,
                                                                models.BetUsers.active == 1,
                                                                models.BetUsers.side == winner)).all()
+    betLosers = db.session.query(models.BetUsers).filter(and_(models.BetUsers.bet_id == bet.id,
+                                                               models.BetUsers.active == 1,
+                                                               models.BetUsers.side != winner)).all()
 
     numOfWinners = len(betWinners)
     # Delete all users that did not accept invites and get the total count of users
@@ -624,4 +714,12 @@ def complete_bet():
     bet.winner = winner
     bet.save()
 
-    return jsonify({'result': True, 'error': ''}), 200
+    # Query for all active users in the bet
+    betUsersActive = db.session.query(models.BetUsers).filter(and_(models.BetUsers.bet_id == bet.id,
+                                                                   models.BetUsers.active == 1)).all()
+
+    # Send bet completion notifications
+    title = bet.title + " has been completed"
+    message = "The winning side is " + bet.side_b if winner else "The winning side is " + bet.side_a
+    return jsonify({'result': True, 'error': ""}), 200
+    #return bet_notification(betUsersActive, title, message)
