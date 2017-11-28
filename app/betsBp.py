@@ -585,16 +585,17 @@ def complete_bet():
         else:
             temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
             # Notify user
-            if temp_user.device_id:
-                # Notify User
-                push_service = FCMNotification(
-                    api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
+            if user.side != winner:
+                if temp_user.device_id:
+                    # Notify User
+                    push_service = FCMNotification(
+                        api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
 
-                registration_id = temp_user.device_id
-                message_title = "You Lost"
-                message_body = bet.title + " has completed"
-                result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
-                                                           message_body=message_body)
+                    registration_id = temp_user.device_id
+                    message_title = "You Lost"
+                    message_body = bet.title + " has completed"
+                    result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                                               message_body=message_body)
 
     if numOfWinners != 0:
         amount = bet.pot // numOfWinners
