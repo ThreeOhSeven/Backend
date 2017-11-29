@@ -45,7 +45,7 @@ def transaction(userID, betID, amount):
 
     user = db.session.query(User).filter_by(id=userID).first()
     bcOb = BlockchainTransact()
-    current_balance = getBalance_from_uid(userID)
+    current_balance = bcOb.getBalance_from_uid(userID)
 
     if current_balance - amount >= 0 and bet.pot + amount >= 0:
         # user.current_balance -= amount

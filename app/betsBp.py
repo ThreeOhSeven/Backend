@@ -621,12 +621,22 @@ def delete_bet():
             if bet is None:
                 return jsonify({'result': False, 'error': 'Bet does not exist'}), 400
 
+            bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+
+            for bet_user in bet_users:
+
+                # Update the user and bet balance accordingly
+                if transaction(bet_user.user_id, bet.id, -bet.amount) is False:
+                    return jsonify({'result': True, 'error': 'Transaction error'}), 400
+
             try:
                 bet.delete()
             except AssertionError as e:
                 return jsonify({'result': False, 'error': e.message}), 400
 
             return jsonify({'result': True, 'success': "Bet deleted successfully"}), 200
+
+
 
 
 ######## Complete Bet ########
