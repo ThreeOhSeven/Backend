@@ -9,7 +9,7 @@ commentRoutes = Blueprint('commentBp', __name__)
 
 
 # {authToken: xxxx, betId: xxxx, text: xxxx}
-@commentRoutes.route('/comment', methods=['POST'])
+@commentRoutes.route('/comment/add', methods=['POST'])
 def add_comment():
     authClass = authBackend()
 
@@ -35,4 +35,65 @@ def add_comment():
         comment.save()
         return jsonify({'result': True, 'success': 'Comment Created'}), 200
     except:
-        return jsonify({'result': True, 'error': 'Comment Failed to Save'}), 200
+        return jsonify({'result': True, 'error': 'Comment Failed to save'}), 400
+
+
+# {authToken: xxxx, commentId: xxxx}
+@commentRoutes.route('/comment/delete', methods=['POST'])
+def delete_comment():
+    authClass = authBackend()
+
+    if request.method != 'POST':
+        return jsonify({'result': False, 'error': 'Only POST accepted'}), 400
+
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+
+    email = authClass.decode_jwt(token)
+
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+    user = db.session.query(models.User).filter_by(email=email).first()
+
+    comment = models.Comment.query.filter_by(id=payload['commentId']).first()
+
+    if comment.user_id != user.id:
+        return jsonify({'result': False, 'error': 'Not owner of comment'}), 400
+
+    try:
+        db.session.delete(comment)
+    except:
+        return jsonify({'result': False, 'error': 'Failed to delete comment'}), 400
+
+    return jsonify({'result': True, 'success': 'Comment Deleted'}), 200
+
+
+# {authToken: xxxx, commentId: xxxx}
+@commentRoutes.route('/comment/get', methods=['POST'])
+def get_comments():
+    authClass = authBackend()
+
+    if request.method != 'POST':
+        return jsonify({'result': False, 'error': 'Only POST accepted'}), 400
+
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+
+    email = authClass.decode_jwt(token)
+
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+    user = db.session.query(models.User).filter_by(email=email).first()
+
+    comments = models.Comment.query.filter_by(bet_id=payload['betId']).all()
+
+    result = []
+
+    for comment in comments:
+        result.append(comment.toJSON)
+
+    response = jsonify({'comments': result})
+    response.status_code = 200
+    return response
