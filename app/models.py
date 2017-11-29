@@ -62,10 +62,10 @@ class Friend(db.Model):
 
     # Foreign Relationships
     user_to = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    user_to_rel = db.relationship('Bet', backref=db.backref('Friends', passive_deletes=True))
+    user_to_rel = db.relationship('User', backref=db.backref('Friends', passive_deletes=True))
 
     user_from = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    user_from_rel = db.relationship('Bet', backref=db.backref('Friends', passive_deletes=True))
+    user_from_rel = db.relationship('User', backref=db.backref('Friends', passive_deletes=True))
 
     def __init__(self, user_to, user_from, status):
         self.user_to = user_to
@@ -108,7 +108,7 @@ class Bet(db.Model):
 
     # Foreign Relationships
     creator_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    creator = db.relationship('Bet', backref=db.backref('Bet', passive_deletes=True))
+    creator = db.relationship('User', backref=db.backref('Bet', passive_deletes=True))
 
     def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b, creation_time):
         self.creator_id = creator_id
@@ -177,7 +177,7 @@ class BetUsers(db.Model):
     bet = db.relationship('Bet', backref=db.backref('BetUsers', passive_deletes=True))
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    user = db.relationship('Bet', backref=db.backref('BetUsers', passive_deletes=True))
+    user = db.relationship('User', backref=db.backref('BetUsers', passive_deletes=True))
 
     def __init__(self, bet_id, user_id, active, side):
         self.bet_id = bet_id
@@ -215,7 +215,7 @@ class Likes(db.Model):
     bet = db.relationship('Bet', backref=db.backref('Likes', passive_deletes=True))
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    user = db.relationship('Bet', backref=db.backref('Likes', passive_deletes=True))
+    user = db.relationship('User', backref=db.backref('Likes', passive_deletes=True))
 
     def __init__(self, bet_id, user_id):
         self.bet_id = bet_id
@@ -279,7 +279,7 @@ class AddressBook(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    user = db.relationship('Bet', backref=db.backref('AddressBook', passive_deletes=True))
+    user = db.relationship('User', backref=db.backref('AddressBook', passive_deletes=True))
 
     account_hex = db.Column(db.Text, nullable=False)
     bc_passphrase = db.Column(db.Text, nullable=False)
@@ -308,7 +308,7 @@ class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    user = db.relationship('Bet', backref=db.backref('Feedback', passive_deletes=True))
+    user = db.relationship('User', backref=db.backref('Feedback', passive_deletes=True))
 
     text = db.Column(db.Text, nullable=False)
 
@@ -334,7 +334,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    user = db.relationship('Bet', backref=db.backref('Comments', passive_deletes=True))
+    user = db.relationship('User', backref=db.backref('Comments', passive_deletes=True))
 
     bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id', ondelete='CASCADE'), nullable=False)
     bet = db.relationship('Bet', backref=db.backref('Comments', passive_deletes=True))
