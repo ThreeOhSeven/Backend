@@ -292,6 +292,10 @@ class AddressBook(db.Model):
     def __repr__(self):
         return '<Account id: {}>'.format(self.id)
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     def save(self):
         db.session.add(self)
         db.session.commit()
@@ -317,6 +321,10 @@ class Feedback(db.Model):
 
     def save(self):
         db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
         db.session.commit()
 
 
@@ -345,6 +353,10 @@ class Comment(db.Model):
 
     def save(self):
         db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
         db.session.commit()
 
     @property
