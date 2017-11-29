@@ -598,6 +598,36 @@ def edit_bet():
 
                 return jsonify({'result': True, 'success': "Bet updated successfully"}), 200
 
+######## Delete Bet ########
+@betRoutes.route('/bets/delete', methods=['POST'])
+def delete_bet():
+
+    authClass = authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            bet = models.Bet.query.filter_by(id=payload['betId']).first()
+
+            if bet is None:
+                return jsonify({'result': False, 'error': 'Bet does not exist'}), 400
+
+            try:
+                bet.delete()
+            except AssertionError as e:
+                return jsonify({'result': False, 'error': e.message}), 400
+
+            return jsonify({'result': True, 'success': "Bet deleted successfully"}), 200
+
 
 ######## Complete Bet ########
 @betRoutes.route('/bets/complete', methods=['POST'])
