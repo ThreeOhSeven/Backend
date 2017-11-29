@@ -14,7 +14,7 @@ class BlockchainTransact:
         self.parentAccount = "0x001ebfeb4539388ede520f6374fab6f91200f89d"
         self.parentPass = "cwTYyo2oFX5c52MbnEAuPpDCoCNwQPolIUYx5lJH"
         self.w3 = Web3(HTTPProvider('http://18.220.176.148:8545'))
-        f = open("app/Betrc.sol")
+        f = open("/var/www/Backend/app/Betrc.sol")
         cc = f.read()
         f.close()
         self.cCode = compile_source(cc)
