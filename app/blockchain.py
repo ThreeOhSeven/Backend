@@ -7,6 +7,7 @@ import string
 import random
 #from eth_utils import decode_hex
 
+
 class BlockchainTransact:
 
     def __init__(self):
