@@ -62,7 +62,7 @@ def delete_comment():
         return jsonify({'result': False, 'error': 'Not owner of comment'}), 400
 
     try:
-        db.session.delete(comment)
+        comment.delete()
     except:
         return jsonify({'result': False, 'error': 'Failed to delete comment'}), 400
 
