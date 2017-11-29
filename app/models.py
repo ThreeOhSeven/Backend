@@ -244,7 +244,7 @@ class Transactions(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    user = db.relationship('Bet', backref=db.backref('Transactions', passive_deletes=True))
+    user = db.relationship('User', backref=db.backref('Transactions', passive_deletes=True))
 
     amount = db.Column(db.Integer, nullable=False)
 
