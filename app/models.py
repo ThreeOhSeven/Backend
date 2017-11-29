@@ -366,7 +366,7 @@ class Comment(db.Model):
             'userId': self.user_id,
             'betId': self.bet_id,
             'text': self.text,
-            'creation_time': self.creation_time,
+            'creationTime': self.creation_time,
         }
 
         return obj
