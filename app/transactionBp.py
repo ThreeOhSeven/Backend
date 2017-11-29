@@ -38,6 +38,7 @@ def fetchPoints():
         return jsonify({'result' : True, 'current_balance' : user_points})
     return jsonify({'result' : False})
 
+
 # Transactions are always user to bet postive or negative
 def transaction(userID, betID, amount):
     bet = db.session.query(Bet).filter_by(id=betID).first()
