@@ -5,7 +5,7 @@ import json
 from app import models
 from .authRoutines import *
 
-commentRoutes = Blueprint('likesBp', __name__)
+commentRoutes = Blueprint('commentBp', __name__)
 
 
 # {authToken: xxxx, betId: xxxx, text: xxxx}
