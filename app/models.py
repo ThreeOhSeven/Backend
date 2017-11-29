@@ -55,10 +55,10 @@ class User(db.Model):
     @property
     def toJSON(self):
         obj = {
-            "id" : self.id,
-            "username" : self.username,
-            "email" : self.email,
-            "birthday" : self.birthday
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "birthday": self.birthday
         }
 
         return obj
@@ -114,11 +114,6 @@ class Bet(db.Model):
     creation_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     color = db.Column(db.Integer, nullable=True)
     icon = db.Column(db.Integer, nullable=True)
-
-    # One to Many
-    bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
-    likes = db.relationship('Likes', backref='bet', lazy=True)
-    transactions = db.relationship('Transactions', backref='bet', lazy=True)
 
     def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b, creation_time):
         self.creator_id = creator_id
@@ -178,12 +173,15 @@ class BetUsers(db.Model):
     __tablename__ = 'BetUsers'
 
     id = db.Column(db.Integer, primary_key=True)
-    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'),nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     active = db.Column(db.Boolean, nullable=False, default=False)
     side = db.Column(db.Integer, nullable=False)
     confirmed = db.Column(db.Integer, nullable=False, default=2)
 
+    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id', ondelete='CASCADE'),
+                       nullable=False)
+
+    bet = db.relationship('Bet', backref=db.backref('BetUsers', passive_deletes=True))
 
     def __init__(self, bet_id, user_id, active, side):
         self.bet_id = bet_id
@@ -216,13 +214,11 @@ class Likes(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'),
-                       nullable=False)
+    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id', ondelete='CASCADE'), nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'),
-                       nullable=False)
+    bet = db.relationship('Bet', backref=db.backref('Likes', passive_deletes=True))
 
-
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
 
     def __init__(self, bet_id, user_id):
         self.bet_id = bet_id
@@ -251,8 +247,12 @@ class Transactions(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
-    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'), nullable=False)
     amount = db.Column(db.Integer, nullable=False)
+
+    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id', ondelete='CASCADE'),
+                       nullable=False)
+
+    bet = db.relationship('Bet', backref=db.backref('Transactions', passive_deletes=True))
 
     def __init__(self, user_id, bet_id, amount):
         self.user_id = user_id
@@ -262,7 +262,6 @@ class Transactions(db.Model):
     def __repr__(self):
         return '<Transactions id: {}>'.format(self.id)
 
-
     def save(self):
         db.session.add(self)
         db.session.commit()
@@ -271,10 +270,10 @@ class Transactions(db.Model):
     def get_all():
         return Transactions.query.all()
 
-
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
 
 class AddressBook(db.Model):
 
