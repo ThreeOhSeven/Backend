@@ -62,10 +62,10 @@ class Friend(db.Model):
 
     # Foreign Relationships
     user_to = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    user_to_rel = db.relationship('User', backref=db.backref('Friends', passive_deletes=True))
+    user_to_rel = db.relationship('User', backref=db.backref('user_to', passive_deletes=True))
 
     user_from = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    user_from_rel = db.relationship('User', backref=db.backref('Friends', passive_deletes=True))
+    user_from_rel = db.relationship('User', backref=db.backref('user_from', passive_deletes=True))
 
     def __init__(self, user_to, user_from, status):
         self.user_to = user_to
