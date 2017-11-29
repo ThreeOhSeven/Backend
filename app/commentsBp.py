@@ -35,4 +35,4 @@ def add_comment():
         comment.save()
         return jsonify({'result': True, 'success': 'Comment Created'}), 200
     except:
-        return jsonify({'result': True, 'error': 'Comment Failed to save'}), 200
+        return jsonify({'result': True, 'error': 'Comment Failed to Save'}), 200

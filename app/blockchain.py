@@ -1,11 +1,11 @@
-#from web3 import Web3, HTTPProvider
-#from solc import compile_source
-#from web3.contract import ConciseContract
+from web3 import Web3, HTTPProvider
+from solc import compile_source
+from web3.contract import ConciseContract
 from app import db
 from .models import User, AddressBook
 import string
 import random
-#from eth_utils import decode_hex
+from eth_utils import decode_hex
 
 
 class BlockchainTransact:
