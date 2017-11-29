@@ -27,7 +27,7 @@ class likesBpTests(unittest.TestCase):
             db.create_all()
 
     def test_createLike(self):
-        betId = 1
+        betId = 130
         like = 1
 
         response = self.client().post('/like/update',
