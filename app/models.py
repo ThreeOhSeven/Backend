@@ -133,7 +133,6 @@ class Bet(db.Model):
         self.color = random.randint(0,9)
         self.icon = random.randint(0, 9)
 
-
     def __repr__(self):
         return '<Bet id: {}>'.format(self.id)
 
@@ -319,3 +318,40 @@ class Feedback(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+
+class Comment(db.Model):
+    __tablename__ = 'Comments'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id'), nullable=False)
+
+    text = db.Column(db.Text, nullable=False)
+    creation_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __init__(self, user_id, bet_id, text):
+        self.user_id = user_id
+        self.bet_id = bet_id
+        self.text = text
+        self.creation_time = datetime.now()
+        
+    def __repr__(self):
+        return '<Comment id: {}>'.format(self.id)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @property
+    def toJSON(self):
+        obj = {
+            'id': self.id,
+            'userId': self.user_id,
+            'betId': self.bet_id,
+            'text': self.text,
+            'creation_time': self.creation_time,
+        }
+
+        return obj
