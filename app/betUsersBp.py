@@ -3,7 +3,7 @@ from flask import request, jsonify, Blueprint
 import json
 from pyfcm import FCMNotification
 
-#from .models import User, Bet, BetUsers, Friend
+from .models import User, Bet, BetUsers, Friend
 from .transactionBp import transaction
 from sqlalchemy import or_, and_
 from .authRoutines import *

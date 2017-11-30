@@ -3,7 +3,7 @@ import requests
 from sqlalchemy import or_, and_
 from app import db
 from pyfcm import FCMNotification
-#from .models import User, Friend
+from .models import User, Friend
 
 friendsRoutes = Blueprint('friends', __name__)
 from .authBp import authBackend
