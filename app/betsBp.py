@@ -741,6 +741,9 @@ def cancel_bet():
     if bet is None:
         return jsonify({'result': False, 'error': 'Bet not found'}), 400
 
+    if bet.locked is not False or bet.complete is not False:
+        return jsonify({'result': False, 'error': 'Bet is locked or already complete'}), 400
+
     betUser = db.session.query(models.BetUsers).filter(and_(models.BetUsers.user_id == user.id,
                                                             models.BetUsers.bet_id == bet.id)).first()
 
