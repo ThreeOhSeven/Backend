@@ -566,7 +566,7 @@ def edit_bet():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
 
-        print(payload)
+        # print(payload)
 
         token = payload['authToken']
 
@@ -582,7 +582,7 @@ def edit_bet():
             if bet is None:
                 return jsonify({'result': False, 'error': 'Bet does not exist'}), 400
             else:
-                bet.creator = user.id
+                bet.creator_id = user.id
                 bet.max_users = payload['maxUsers']
                 bet.title = payload['title']
                 bet.description = payload['description']
