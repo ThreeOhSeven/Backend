@@ -101,7 +101,9 @@ def get_comments():
     result = []
 
     for comment in comments:
-        result.append(comment.toJSON)
+        obj = comment.toJSON
+        obj['email'] = User.email
+        result.append(obj)
 
     response = jsonify({'comments': result})
     response.status_code = 200

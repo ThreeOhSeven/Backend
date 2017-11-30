@@ -4,12 +4,13 @@ import requests
 import json
 from app.models import Notification
 from .authRoutines import *
+from app import notifications
 
-notifcationRoutes = Blueprint('notificationBp', __name__)
+notificationRoutes = Blueprint('notificationBp', __name__)
 
 
 # {authToken: xxxx, userId: xxxx}
-@notifcationRoutes.route('/notifications/get', methods=['POST'])
+@notificationRoutes.route('/notifications/get', methods=['POST'])
 def get_notifications():
     authClass = authBackend()
 
@@ -28,7 +29,10 @@ def get_notifications():
 
     notifications = Notification.query.filter_by(user_id=user.id).all()
 
+    res = []
 
-def add_notification(user_id, title, message):
+    for notification in notifications:
+        if not notification.viewed:
+            notification.viewed = True
 
-    notification = Notification(user_id, title, message).save()
+        res.append(notification.toJSON)
