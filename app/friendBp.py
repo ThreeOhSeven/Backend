@@ -2,6 +2,7 @@ from flask import Blueprint, json, request, jsonify
 import requests
 from sqlalchemy import or_, and_
 from app import db
+from pyfcm import FCMNotification
 from .models import User, Friend
 
 friendsRoutes = Blueprint('friends', __name__)
@@ -169,6 +170,18 @@ def addFriend():
         new_friendship = Friend(user_to.id, user_from.id, 0)
         db.session.add(new_friendship)
         db.session.commit()
+
+        if user_to.device_id:
+            # Notify User
+            push_service = FCMNotification(
+                api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
+
+            registration_id = user_to.device_id
+            message_title = "Friend Request"
+            message_body = user_from.email + " has sent you a friend request"
+            result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                                       message_body=message_body)
+
         return jsonify({'result': True, 'error': ''}), 200
     elif friendship.status == 1:
         return jsonify({'result': False, 'error': 'Users are already friends'}), 400
