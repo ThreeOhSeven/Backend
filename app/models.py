@@ -106,9 +106,15 @@ class Bet(db.Model):
     color = db.Column(db.Integer, nullable=True)
     icon = db.Column(db.Integer, nullable=True)
 
+    # One to Many
+    bet_users = db.relationship('BetUsers', backref='bet', lazy=True, cascade='all, delete-orphan')
+    likes = db.relationship('Likes', backref='bet', lazy=True, cascade='all, delete-orphan')
+    transactions = db.relationship('Transactions', backref='bet', lazy=True, cascade='all, delete-orphan')
+
     # Foreign Relationships
     creator_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
     creator = db.relationship('User', backref=db.backref('Bet', passive_deletes=True))
+
 
     def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b, creation_time):
         self.creator_id = creator_id
