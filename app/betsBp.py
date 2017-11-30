@@ -550,7 +550,7 @@ def create_bet():
                 return jsonify({'result': False, 'error': 'Your balance is to low to create a bet'}), 400
 
             try:
-                betUser = models.BetUsers(bet.id, creator, True, 0)
+                betUser = models.BetUsers(bet.id, creator, True, 0, 0)
             except AssertionError as e:
                 return jsonify({'result' : False, 'error': e.message}), 400
             betUser.save()
