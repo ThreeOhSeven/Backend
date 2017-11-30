@@ -49,13 +49,14 @@ class BlockchainTransact:
             newAcc = self.make_new_account(user.id)
             unlockres = self.unlock_master()
             if unlockres:
-                txHash = self.w3.transfer(newAcc, amount, transact={'from' : self.parentAccount})
+                txHash = self.contractInstance.transfer(newAcc, amount, transact={'from' : self.parentAccount})
                 return True, txHash
             return False
-        accHex = bcAddr.account_hex
+        accHex = str(bcAddr.account_hex)
+        accHex = accHex[:-1]
         unlockres = self.unlock_master()
         if unlockres:
-            txHash = self.w3.transfer(accHex, amount, transact={'from' : self.parentAccount})
+            txHash = self.contractInstance.transfer(accHex, amount, transact={'from' : self.parentAccount})
             return True, txHash
         return False
 
@@ -65,13 +66,14 @@ class BlockchainTransact:
             newAcc = self.make_new_account(user.id)
             unlockres = self.unlock_master()
             if unlockres:
-                txHash = self.w3.transfer(newAcc, amount, transact={'from' : self.parentAccount})
+                txHash = self.contractInstance.transfer(newAcc, amount, transact={'from' : self.parentAccount})
                 return True, txHash
             return False
-        accHex = bcAddr.account_hex
+        accHex = str(bcAddr.account_hex)
+        accHex = accHex[:-1]
         unlockres = self.unlock_master()
         if unlockres:
-            txHash = self.w3.transfer(accHex, amount, transact={'from' : self.parentAccount})
+            txHash = self.contractInstance.transfer(accHex, amount, transact={'from' : self.parentAccount})
             return True, txHash
         return False
 
@@ -79,12 +81,13 @@ class BlockchainTransact:
         bcAddr = db.session.query(AddressBook).filter_by(user_id=userID).first()
         if bcAddr is None:
             return False
-        accHex = bcAddr.account_hex
+        accHex = str(bcAddr.account_hex)
+        accHex = accHex[:-1]
         unlockPhr = bcAddr.bc_passphrase
         unlockRes = self.unlock_user(accHex, unlockPhr)
         if unlockRes:
             #successful unlock of account
-            txHash = self.w3.transfer(self.parentAccount, amount, transact={'from' : accHex})
+            txHash = self.contractInstance.transfer(self.parentAccount, amount, transact={'from' : accHex})
             return True, txHash
         else:
             return False
