@@ -767,6 +767,7 @@ def cancel_bet():
     message = bet.title + " has been canceled"
     bet_notification(betUsersActive, title, message)
 
+
 def bet_notification(betUsers, title, message):
     print("Notification: Title " + title + " message " + message)
     push_service = FCMNotification(
@@ -800,6 +801,8 @@ def bet_completion(bet, winner):
             db.session.commit()
         else:
             temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
+            ++temp_user.loses
+            temp_user.save()
             # Notify user
             if user.side != winner:
                 if temp_user.device_id:
@@ -823,6 +826,8 @@ def bet_completion(bet, winner):
             return jsonify({'result': False, 'error': 'Transaction error'}), 400
         else:
             temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
+            ++temp_user.wins
+            temp_user.save()
             # Notify user
             if temp_user.device_id:
                 # Notify User
