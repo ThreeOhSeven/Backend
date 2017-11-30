@@ -53,9 +53,10 @@ class BlockchainTransact:
                 return True, txHash
             return False
         accHex = bcAddr.account_hex
+        print("accHex: ", accHex)
         unlockres = self.unlock_master()
         if unlockres:
-            txHash = self.contractInstance.transfer(accHex, amount, transact={'from' : self.parentAccount})
+            txHash = self.contractInstance.transfer(decode_hex(accHex), int(amount), transact={'from' : self.parentAccount})
             return True, txHash
         return False
 
