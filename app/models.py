@@ -107,9 +107,9 @@ class Bet(db.Model):
     icon = db.Column(db.Integer, nullable=True)
 
     # One to Many
-    bet_users = db.relationship('BetUsers', backref='bet', lazy=True, cascade='all, delete-orphan')
-    likes = db.relationship('Likes', backref='bet', lazy=True, cascade='all, delete-orphan')
-    transactions = db.relationship('Transactions', backref='bet', lazy=True, cascade='all, delete-orphan')
+    #bet_users = db.relationship('BetUsers', backref='bet', lazy=True, cascade='all, delete-orphan')
+    #likes = db.relationship('Likes', backref='bet', lazy=True, cascade='all, delete-orphan')
+    #transactions = db.relationship('Transactions', backref='bet', lazy=True, cascade='all, delete-orphan')
 
     # Foreign Relationships
     creator_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
