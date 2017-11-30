@@ -95,7 +95,7 @@ def chargeStripe():
                 print("error with blockchain")
                 return jsonify({'result' : False, 'error' : "Some error with blockchain"})
             charge = stripe.Charge.create(amount=chargeAmt, currency="usd", description="user deposit betcha", source = stripeToken)
-            blockchainPaySuccess = bcOb.newPayment(email, chargeAmt / 100)
+            blockchainPaySuccess = bcOb.newPayment(email, int(chargeAmt) / 100)
             return jsonify({'result' : True})
         except Exception as e:
             print(e)
