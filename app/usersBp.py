@@ -171,7 +171,7 @@ def get_record():
 def notifyAll():
     push_service = FCMNotification(api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
 
-    registration_id = "fBvbHdhYNd4:APA91bE_spuZqv94zeCCJ-Bsgp88pO1hjV3I6uqmB-MRentD03DLD5kX5LrpkGXSn0qW8e1m6UuQcyqIqoe4w6HMHCTE-hY6uUNWpBN7nwcGwejAtAHlYbzYPnHt4yWMox4catr9Zcsf"
+    registration_id = "fBvbHdhYNd4:APA91bE_spuZqv94zeCCJ--MRentD03DLD5kX5LrpkGXSn0qW8e1m6UuQcyqIqoe4w6HMHCTE-hY6uUNWpBN7nwcGwejAtAHlYbzYPnHt4yWMox4catr9Zcsf"
     message_title = "TEST"
     message_body = "HI THIS IS A TEST"
     result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
