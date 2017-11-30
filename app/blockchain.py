@@ -102,6 +102,8 @@ class BlockchainTransact:
             newAcc = self.make_new_account(user.id)
             return 0
         accHex = str(bcAddr.account_hex)
+        for char in accHex:
+            print(char)
         accHex = accHex[:-1]
         account_balance = self.contractInstance.balanceOf(decode_hex(accHex))
         return account_balance
