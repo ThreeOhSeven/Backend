@@ -637,8 +637,6 @@ def delete_bet():
             return jsonify({'result': True, 'success': "Bet deleted successfully"}), 200
 
 
-
-
 ######## Complete Bet ########
 @betRoutes.route('/bets/complete', methods=['POST'])
 def complete_bet():
@@ -669,7 +667,6 @@ def complete_bet():
 
     betUser = db.session.query(models.BetUsers).filter(and_(models.BetUsers.user_id == user.id,
                                                             models.BetUsers.bet_id == bet.id)).first()
-
     if betUser is None:
         return jsonify({'result': False, 'error': 'User not in the bet'}), 400
 
@@ -695,22 +692,29 @@ def complete_bet():
     for user in betUsersActive:
         if user.confirmed is 2:
             betUsersUnconfirmed.append(user)
-        if user.side is not winner:
+        if user.confirmed is not winner:
             betUsersDisagree.append(user)
 
     if not betUsersUnconfirmed and not betUsersDisagree:
         print("completed")
-        return bet_completion(bet, winner)
+        bet_completion(bet, winner)
+        return jsonify({'result': True, 'error': ''}), 200
     if not betUsersUnconfirmed and betUsersDisagree:
         print("disagree")
         title = bet.title + " had disagreement of the winner"
         message = "Please make sure you selected the correct side."
-        return bet_notification(betUsersDisagree, title, message)
+        bet_notification(betUsersDisagree, title, message)
+        return jsonify({'result': True, 'error': ''}), 200
     if betUsersUnconfirmed and firstComplete and betCreator.user_id is user.id:
         print("firstComplete")
         title = "Confirm " + bet.title
         message = "Please confirm the winner of " + bet.title + "."
-        return bet_notification(betUsersDisagree, title, message)
+        bet_notification(betUsersDisagree, title, message)
+        return jsonify({'result': True, 'error': ''}), 200
+
+
+    return jsonify({'result': True, 'error': ''}), 200
+
 
 ######## Cancel Bet ########
 @betRoutes.route('/bets/cancel', methods=['POST'])
@@ -762,10 +766,21 @@ def cancel_bet():
         if user.confirmed is not 3:
             return jsonify({'result': True, 'error': 'Not all users have confirmed cancellation yet'}), 200
 
-    bet.delete()
     title = bet.title + " canceled"
     message = bet.title + " has been canceled"
     bet_notification(betUsersActive, title, message)
+
+    for user in betUsersActive:
+        # Update the user and bet balance accordingly
+        if transaction(user.user_id, bet.id, -bet.amount) is False:
+            return jsonify({'result': True, 'error': 'Transaction error'}), 400
+
+    try:
+        bet.delete()
+    except AssertionError as e:
+        return jsonify({'result': False, 'error': e.message}), 400
+
+    return jsonify({'result': True, 'error': ''}), 200
 
 
 def bet_notification(betUsers, title, message):
@@ -783,8 +798,6 @@ def bet_notification(betUsers, title, message):
     result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title,
                                                   message_body=message_body)
 
-    return jsonify({'result': True, 'error': ''}), 200
-
 
 def bet_completion(bet, winner):
     # Handle the transactions
@@ -801,10 +814,10 @@ def bet_completion(bet, winner):
             db.session.commit()
         else:
             temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
-            ++temp_user.loses
-            temp_user.save()
             # Notify user
             if user.side != winner:
+                temp_user.loses = temp_user.loses + 1
+                temp_user.save()
                 if temp_user.device_id:
                     # Notify User
                     push_service = FCMNotification(
@@ -826,7 +839,7 @@ def bet_completion(bet, winner):
             return jsonify({'result': False, 'error': 'Transaction error'}), 400
         else:
             temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
-            ++temp_user.wins
+            temp_user.wins = temp_user.wins + 1
             temp_user.save()
             # Notify user
             if temp_user.device_id:
@@ -852,4 +865,5 @@ def bet_completion(bet, winner):
     # Send bet completion notifications
     title = bet.title + " has been completed"
     message = "The winning side is " + bet.side_b if winner else "The winning side is " + bet.side_a
-    return bet_notification(betUsersActive, title, message)
+    bet_notification(betUsersActive, title, message)
+    return jsonify({'result': True, 'error': ''}), 200
