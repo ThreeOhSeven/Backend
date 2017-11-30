@@ -816,8 +816,6 @@ def bet_completion(bet, winner):
             temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
             # Notify user
             if user.side != winner:
-                temp_user.loses = temp_user.loses + 1
-                temp_user.save()
                 if temp_user.device_id:
                     # Notify User
                     push_service = FCMNotification(
@@ -839,8 +837,6 @@ def bet_completion(bet, winner):
             return jsonify({'result': False, 'error': 'Transaction error'}), 400
         else:
             temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
-            temp_user.wins = temp_user.wins + 1
-            temp_user.save()
             # Notify user
             if temp_user.device_id:
                 # Notify User
