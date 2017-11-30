@@ -27,12 +27,11 @@ def get_notifications():
 
     user = db.session.query(User).filter_by(email=email).first()
 
-    notifications = Notification.query.filter_by(user_id=user.id).all()
+    notification_feed = Notification.query.filter_by(user_id=user.id).all()
 
     res = []
 
-    for notification in notifications:
-        if not notification.viewed:
-            notification.viewed = True
-
+    for notification in notification_feed:
         res.append(notification.toJSON)
+
+        notification.viewed = True
