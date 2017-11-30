@@ -179,11 +179,12 @@ class BetUsers(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
     user = db.relationship('User', backref=db.backref('BetUsers', passive_deletes=True))
 
-    def __init__(self, bet_id, user_id, active, side):
+    def __init__(self, bet_id, user_id, active, side, confirmed):
         self.bet_id = bet_id
         self.user_id = user_id
         self.active = active
         self.side = side
+        self.confirmed = confirmed
 
     def __repr__(self):
         return '<BetUsers id: {}>'.format(self.id)
@@ -347,7 +348,7 @@ class Comment(db.Model):
         self.bet_id = bet_id
         self.text = text
         self.creation_time = datetime.now()
-        
+
     def __repr__(self):
         return '<Comment id: {}>'.format(self.id)
 
