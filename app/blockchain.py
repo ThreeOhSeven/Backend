@@ -53,7 +53,6 @@ class BlockchainTransact:
                 return True, txHash
             return False
         accHex = str(bcAddr.account_hex)
-        accHex = accHex[:-1]
         unlockres = self.unlock_master()
         if unlockres:
             txHash = self.contractInstance.transfer(accHex, amount, transact={'from' : self.parentAccount})
@@ -70,7 +69,6 @@ class BlockchainTransact:
                 return True, txHash
             return False
         accHex = str(bcAddr.account_hex)
-        accHex = accHex[:-1]
         unlockres = self.unlock_master()
         if unlockres:
             txHash = self.contractInstance.transfer(accHex, amount, transact={'from' : self.parentAccount})
@@ -82,7 +80,6 @@ class BlockchainTransact:
         if bcAddr is None:
             return False
         accHex = str(bcAddr.account_hex)
-        accHex = accHex[:-1]
         unlockPhr = bcAddr.bc_passphrase
         unlockRes = self.unlock_user(accHex, unlockPhr)
         if unlockRes:
@@ -102,9 +99,6 @@ class BlockchainTransact:
             newAcc = self.make_new_account(user.id)
             return 0
         accHex = str(bcAddr.account_hex)
-        for char in accHex:
-            print(char)
-        accHex = accHex[:-1]
         account_balance = self.contractInstance.balanceOf(decode_hex(accHex))
         return account_balance
 
@@ -117,6 +111,5 @@ class BlockchainTransact:
             newAcc = self.make_new_account(user.id)
             return 0
         accHex = str(bcAddr.account_hex)
-        accHex = accHex[:-1]
         account_balance = self.contractInstance.balanceOf(decode_hex(accHex))
         return account_balance
