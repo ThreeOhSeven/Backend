@@ -5,6 +5,7 @@ import json
 from app import models
 from .authRoutines import *
 from .transactionBp import transaction
+from pyfcm import FCMNotification
 
 from sqlalchemy import or_, and_
 from pyfcm import FCMNotification
@@ -445,6 +446,65 @@ def profile():
             response.status_code = 200
             return response
 
+######## User Profile ########
+@betRoutes.route('/bets/userProfile', methods=['POST'])
+def user_profile():
+
+    authClass = authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            user_id = payload['userId']
+            other_user = User.query.filter_by(id=user_id).first().toJSON
+            bet_users = models.BetUsers.query.filter_by(user_id=user_id)
+
+            results = []
+
+            for bet_user in bet_users:
+                bet = models.Bet.query.filter_by(id=bet_user.bet_id).first()
+
+                # Get like count
+                count = models.Likes.query.filter_by(bet_id=bet.id).count()
+
+                # Get if the current user liked the bet
+                like = models.Likes.query.filter_by(bet_id=bet.id, user_id=user.id).count()
+
+                if like is 1:
+                    liked = True
+                else:
+                    liked = False
+
+                # Get users in bet
+                bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+                users = []
+
+                for bet_user in bet_users:
+                    user = models.User.query.filter_by(id=bet_user.user_id).first()
+
+                    users.append(user.toJSON)
+
+                # Make JSONobject
+                obj = bet.toJSON
+
+                obj['numLikes'] = count
+                obj['liked'] = liked
+                obj['users'] = users
+
+                results.append(obj)
+
+            response = jsonify({'user': other_user, 'bets': results})
+            response.status_code = 200
+            return response
+
 
 ######## Create Bet ########
 @betRoutes.route('/bets/create', methods=['POST'])
@@ -506,7 +566,7 @@ def edit_bet():
     if request.method == 'POST':
         payload = json.loads(request.data.decode())
 
-        print(payload)
+        # print(payload)
 
         token = payload['authToken']
 
@@ -522,7 +582,7 @@ def edit_bet():
             if bet is None:
                 return jsonify({'result': False, 'error': 'Bet does not exist'}), 400
             else:
-                bet.creator = user.id
+                bet.creator_id = user.id
                 bet.max_users = payload['maxUsers']
                 bet.title = payload['title']
                 bet.description = payload['description']
@@ -537,6 +597,46 @@ def edit_bet():
                     return jsonify({'result': False, 'error': e.message}), 400
 
                 return jsonify({'result': True, 'success': "Bet updated successfully"}), 200
+
+######## Delete Bet ########
+@betRoutes.route('/bets/delete', methods=['POST'])
+def delete_bet():
+
+    authClass = authBackend()
+
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+
+        token = payload['authToken']
+
+        email = authClass.decode_jwt(token)
+
+        user = db.session.query(models.User).filter_by(email=email).first()
+
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        else:
+            bet = models.Bet.query.filter_by(id=payload['betId']).first()
+
+            if bet is None:
+                return jsonify({'result': False, 'error': 'Bet does not exist'}), 400
+
+            bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
+
+            for bet_user in bet_users:
+
+                # Update the user and bet balance accordingly
+                if transaction(bet_user.user_id, bet.id, -bet.amount) is False:
+                    return jsonify({'result': True, 'error': 'Transaction error'}), 400
+
+            try:
+                bet.delete()
+            except AssertionError as e:
+                return jsonify({'result': False, 'error': e.message}), 400
+
+            return jsonify({'result': True, 'success': "Bet deleted successfully"}), 200
+
+
 
 
 ######## Complete Bet ########
@@ -698,6 +798,20 @@ def bet_completion(bet, winner):
         if user.active == 0:
             db.session.delete(user)
             db.session.commit()
+        else:
+            temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
+            # Notify user
+            if user.side != winner:
+                if temp_user.device_id:
+                    # Notify User
+                    push_service = FCMNotification(
+                        api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
+
+                    registration_id = temp_user.device_id
+                    message_title = "You Lost"
+                    message_body = bet.title + " has completed"
+                    result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                                               message_body=message_body)
 
     if numOfWinners != 0:
         amount = bet.pot // numOfWinners
@@ -707,6 +821,19 @@ def bet_completion(bet, winner):
     for user in betWinners:
         if transaction(user.user_id, bet.id, -amount) is False:
             return jsonify({'result': False, 'error': 'Transaction error'}), 400
+        else:
+            temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
+            # Notify user
+            if temp_user.device_id:
+                # Notify User
+                push_service = FCMNotification(
+                    api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
+
+                registration_id = temp_user.device_id
+                message_title = "You Won"
+                message_body = bet.title + " has completed"
+                result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                                           message_body=message_body)
 
     bet.complete = 1
     bet.locked = 1

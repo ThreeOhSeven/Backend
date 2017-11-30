@@ -7,6 +7,7 @@ from .models import User, Bet, BetUsers, Friend
 from .transactionBp import transaction
 from sqlalchemy import or_, and_
 from .authRoutines import *
+from .blockchain import *
 
 betUsersRoutes = Blueprint('betUsersBp', __name__)
 
@@ -30,6 +31,8 @@ def join_bet():
     user = db.session.query(User).filter_by(email=email).first()
     bet = db.session.query(Bet).filter_by(id=betID).first()
 
+    bcOb = BlockchainTransact()
+    current_balance = bcOb.getBalance(email)
     if user is None:
         return jsonify({'result': False, 'error': 'User not found'}), 400
 
@@ -46,7 +49,7 @@ def join_bet():
         return jsonify({'result': False, 'error': 'The bet is locked or complete'}), 400
 
     # Check that the user has enough currency to join the bet
-    if user.current_balance < bet.amount:
+    if current_balance < bet.amount:
         return jsonify({'result': False, 'error': 'User\'s balance is too low.'}), 400
 
     # Check if this request is an accept or a join
@@ -105,7 +108,7 @@ def send_bet():
 
         registration_id = user.device_id
         message_title = "Bet Invite"
-        message_body = "You've been invited to join " + user.username + "\'s bet"
+        message_body = "You've been invited to join " + user.email + "\'s bet"
         result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
                                                    message_body=message_body)
 
@@ -129,6 +132,8 @@ def accept_bet():
 
     user = db.session.query(User).filter_by(email=email).first()
     bet = db.session.query(Bet).filter_by(id=betID).first()
+    bcOb = BlockchainTransact()
+    current_balance = bcOb.getBalance(email)
 
     if user is None:
         return jsonify({'result': False, 'error': 'User not found'}), 400
@@ -137,7 +142,7 @@ def accept_bet():
         return jsonify({'result': False, 'error': 'Bet not found'}), 400
 
     # Check that the user has enough currency to join the bet
-    if user.current_balance < bet.amount:
+    if current_balance < bet.amount:
         return jsonify({'result': False, 'error': 'User\'s balance is too low.'}), 400
 
     # Check to see if bet is locked or complete

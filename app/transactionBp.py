@@ -38,24 +38,44 @@ def fetchPoints():
         return jsonify({'result' : True, 'current_balance' : user_points})
     return jsonify({'result' : False})
 
+
 # Transactions are always user to bet postive or negative
 def transaction(userID, betID, amount):
     bet = db.session.query(Bet).filter_by(id=betID).first()
 
     user = db.session.query(User).filter_by(id=userID).first()
+    bcOb = BlockchainTransact()
+    current_balance = bcOb.getBalance_from_uid(userID)
 
-    if user.current_balance - amount >= 0 and bet.pot + amount >= 0:
-        user.current_balance -= amount
+    if current_balance - amount >= 0 and bet.pot + amount >= 0:
+        # user.current_balance -= amount
         bet.pot += amount
-        user.save()
+        # user.save()
         bet.save()
     else:
         return False
 
-    # Record the transaction in the table
-    transactionEntry = Transactions(userID, betID, amount)
-    transactionEntry.save()
-    return True
+    if amount < 0:
+        #bet to user
+        result, tx = bcOb.newPayment_with_uid(userID, abs(amount))
+        print("tx: ", tx)
+        print("toUser: ", userID)
+        # Record the transaction in the table
+        transactionEntry = Transactions(userID, betID, amount)
+        transactionEntry.save()
+        return result
+    else:
+        #user to bet
+        result, tx = bcOb.withdraw_from_user(userID, amount)
+        print("tx: ", tx)
+        print("fromUser: ", userID)
+
+        # Record the transaction in the table
+        transactionEntry = Transactions(userID, betID, amount)
+        transactionEntry.save()
+        return result
+
+    return False
 
 @transactionRoutes.route("/payment/charge", methods = ["POST"])
 def chargeStripe():
@@ -67,11 +87,17 @@ def chargeStripe():
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         stripeToken = payload['stripeToken']
+        print("stripe token: ", stripeToken)
         chargeAmt = payload['chargeAmount']
         try:
+            try:
+                bcOb = BlockchainTransact()
+            except Exception as e:
+                print("error with blockchain")
+                return jsonify({'result' : False, 'error' : "Some error with blockchain"})
             charge = stripe.Charge.create(amount=chargeAmt, currency="usd", description="user deposit betcha", source = stripeToken)
-            bcOb = BlockchainTransact()
-            blockchainPaySuccess = bcOb.newPayment(email, chargeAmt)
+            print("charge successful")
+            blockchainPaySuccess = bcOb.newPayment(email, int(chargeAmt) / 100)
             return jsonify({'result' : True})
         except Exception as e:
             print(e)
