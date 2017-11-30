@@ -115,7 +115,6 @@ class Bet(db.Model):
     creator_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
     creator = db.relationship('User', backref=db.backref('Bet', passive_deletes=True))
 
-
     def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b, creation_time):
         self.creator_id = creator_id
         self.max_users = max_users
@@ -374,6 +373,51 @@ class Comment(db.Model):
             'betId': self.bet_id,
             'text': self.text,
             'creationTime': self.creation_time,
+        }
+
+        return obj
+
+
+class Notification(db.Model):
+    __tablename__ = 'Notifications'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
+    user = db.relationship('User', backref=db.backref('Notifications', passive_deletes=True))
+
+    message = db.Column(db.Text, nullable=False)
+    title = db.Column(db.Text, nullable=False)
+    creation_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    viewed = db.Column(db.Boolean, nullable=False, default=False)
+
+    def __init__(self, user_id, title, message):
+        self.user_id = user_id
+        self.title = title,
+        self.message = message,
+        self.creation_time = datetime.now()
+        self.viewed = False
+
+    def __repr__(self):
+        return '<Notification id: {}>'.format(self.id)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @property
+    def toJSON(self):
+        obj = {
+            'id': self.id,
+            'userId': self.user_id,
+            'title': self.title,
+            'message': self.message,
+            'creationTime': self.creation_time,
+            'viewed': self.viewed
         }
 
         return obj
