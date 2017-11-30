@@ -116,9 +116,9 @@ class Bet(db.Model):
     icon = db.Column(db.Integer, nullable=True)
 
     # One to Many
-    bet_users = db.relationship('BetUsers', backref='bet', lazy=True)
-    likes = db.relationship('Likes', backref='bet', lazy=True)
-    transactions = db.relationship('Transactions', backref='bet', lazy=True)
+    bet_users = db.relationship('BetUsers', backref='bet', lazy=True, cascade='all, delete-orphan')
+    likes = db.relationship('Likes', backref='bet', lazy=True, cascade='all, delete-orphan')
+    transactions = db.relationship('Transactions', backref='bet', lazy=True, cascade='all, delete-orphan')
 
     def __init__(self, creator_id, max_users, title, description, amount, locked, side_a, side_b, creation_time):
         self.creator_id = creator_id
@@ -186,11 +186,12 @@ class BetUsers(db.Model):
     confirmed = db.Column(db.Integer, nullable=False, default=2)
 
 
-    def __init__(self, bet_id, user_id, active, side):
+    def __init__(self, bet_id, user_id, active, side, confirmed):
         self.bet_id = bet_id
         self.user_id = user_id
         self.active = active
         self.side = side
+        self.confirmed = confirmed
 
     def __repr__(self):
         return '<BetUsers id: {}>'.format(self.id)

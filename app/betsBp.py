@@ -490,7 +490,7 @@ def create_bet():
                 return jsonify({'result': False, 'error': 'Your balance is to low to create a bet'}), 400
 
             try:
-                betUser = models.BetUsers(bet.id, creator, True, 0)
+                betUser = models.BetUsers(bet.id, creator, True, 0, 2)
             except AssertionError as e:
                 return jsonify({'result' : False, 'error': e.message}), 400
             betUser.save()
@@ -564,6 +564,8 @@ def complete_bet():
     if bet is None:
         return jsonify({'result': False, 'error': 'Bet not found'}), 400
 
+    if bet.complete is True:
+        return jsonify({'result': False, 'error': 'Bet is already complete'}), 400
 
     betUser = db.session.query(models.BetUsers).filter(and_(models.BetUsers.user_id == user.id,
                                                             models.BetUsers.bet_id == bet.id)).first()
@@ -587,41 +589,98 @@ def complete_bet():
                                                                    models.BetUsers.active == 1)).all()
 
     # list of users that are unconfirmed
-    betUsersUnconfirmed = None
-    betUsersDisagree = None
+    betUsersUnconfirmed = []
+    betUsersDisagree = []
 
     for user in betUsersActive:
         if user.confirmed is 2:
             betUsersUnconfirmed.append(user)
-        if user.winner is not winner:
+        if user.side is not winner:
             betUsersDisagree.append(user)
 
-    if betUsersUnconfirmed is None and betUsersDisagree is None:
+    if not betUsersUnconfirmed and not betUsersDisagree:
+        print("completed")
         return bet_completion(bet, winner)
-    if betUsersUnconfirmed is None and betUsersDisagree is not None:
+    if not betUsersUnconfirmed and betUsersDisagree:
+        print("disagree")
         title = bet.title + " had disagreement of the winner"
         message = "Please make sure you selected the correct side."
         return bet_notification(betUsersDisagree, title, message)
-    if betUsersUnconfirmed is not None and firstComplete and betCreator.user_id is user.id:
+    if betUsersUnconfirmed and firstComplete and betCreator.user_id is user.id:
+        print("firstComplete")
         title = "Confirm " + bet.title
         message = "Please confirm the winner of " + bet.title + "."
         return bet_notification(betUsersDisagree, title, message)
 
+######## Cancel Bet ########
+@betRoutes.route('/bets/cancel', methods=['POST'])
+def cancel_bet():
+    if request.method != 'POST':
+        return jsonify({'result': False, 'error': "Invalid request"}), 400
+
+    # Authenticate the token and extract values from the request
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+    betID = payload['betID']
+    winner = payload['winner']
+
+    email = authClass.decode_jwt(token)
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+    user = db.session.query(models.User).filter_by(email=email).first()
+    bet = db.session.query(models.Bet).filter_by(id=betID).first()
+
+    if user is None:
+        return jsonify({'result': False, 'error': 'User not found'}), 400
+
+    if bet is None:
+        return jsonify({'result': False, 'error': 'Bet not found'}), 400
+
+    betUser = db.session.query(models.BetUsers).filter(and_(models.BetUsers.user_id == user.id,
+                                                            models.BetUsers.bet_id == bet.id)).first()
+
+    if betUser is None:
+        return jsonify({'result': False, 'error': 'User not in the bet'}), 400
+
+    betCreator = db.session.query(models.BetUsers).filter(and_(models.BetUsers.user_id == bet.creator_id,
+                                                               models.BetUsers.bet_id == bet.id)).first()
+
+    # Query for all active users in the bet
+    betUsersActive = db.session.query(models.BetUsers).filter(and_(models.BetUsers.bet_id == bet.id,
+                                                                   models.BetUsers.active == 1)).all()
+
+    if user.id is betCreator.user_id:
+        title = bet.title + " cancellation"
+        message = "Please confirm the cancellation of " + bet.title
+        bet_notification(betUsersActive, title, message)
+
+    betUser.confirmed = 3
+    betUser.save()
+
+    for user in betUsersActive:
+        if user.confirmed is not 3:
+            return jsonify({'result': True, 'error': 'Not all users have confirmed cancellation yet'}), 200
+
+    bet.delete()
+    title = bet.title + " canceled"
+    message = bet.title + " has been canceled"
+    bet_notification(betUsersActive, title, message)
 
 def bet_notification(betUsers, title, message):
     print("Notification: Title " + title + " message " + message)
-    #push_service = FCMNotification(
-    #    api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
-    #
-    #registration_ids = None
-    #
-    #for user in betUsers:
-    #    registration_ids.append(user.device_id)
-    #
-    #message_title = title
-    #message_body = message
-    #result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title,
-    #                                              message_body=message_body)
+    push_service = FCMNotification(
+        api_key="AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSRXQ51Hwr7985E1bLYH_y-VqRzMPC5b_J3QGRpRdWBgGNZXb17Io0bsHxOJe0qoAwekuKd0901YcgeLTR_kkE")
+
+    registration_ids = []
+
+    for user in betUsers:
+        registration_ids.append(user.user.device_id)
+
+    message_title = title
+    message_body = message
+    result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title,
+                                                  message_body=message_body)
 
     return jsonify({'result': True, 'error': ''}), 200
 
