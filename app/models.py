@@ -180,7 +180,7 @@ class BetUsers(db.Model):
 
     # Foreign Relationships
     bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id', ondelete='CASCADE'), nullable=False)
-    bet = db.relationship('Bet', backref=db.backref('bet_bet_user', passive_deletes=True))
+    bet_link = db.relationship('Bet', backref=db.backref('bet_bet_user', passive_deletes=True))
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
     user = db.relationship('User', backref=db.backref('user_bet_user', passive_deletes=True))
