@@ -102,7 +102,10 @@ def get_comments():
 
     for comment in comments:
         obj = comment.toJSON
-        obj['email'] = User.email
+
+        temp_user = User.query.filter_by(id=comment.user_id).first()
+
+        obj['email'] = temp_user.email
         result.append(obj)
 
     response = jsonify({'comments': result})

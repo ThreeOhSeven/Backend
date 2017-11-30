@@ -823,7 +823,7 @@ def bet_completion(bet, winner):
         else:
             temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
             # Notify user
-            Notifications.bet_complete_notification(user.user_id, "You Won", bet.title + " has completed", bet.id)
+            Notifications.create_notification(user.user_id, "You Won", bet.title + " has completed")
 
             # if temp_user.device_id:
             #     # Notify User
