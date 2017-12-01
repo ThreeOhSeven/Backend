@@ -624,6 +624,12 @@ def delete_bet():
             if bet is None:
                 return jsonify({'result': False, 'error': 'Bet does not exist'}), 400
 
+            if bet.locked:
+                return jsonify({'result': False, 'error': 'Bet is locked'}), 400
+
+            if bet.complete:
+                return jsonify({'result': False, 'error': 'Bet is complete'}), 400
+
             bet_users = models.BetUsers.query.filter_by(bet_id=bet.id).all()
 
             for bet_user in bet_users:
