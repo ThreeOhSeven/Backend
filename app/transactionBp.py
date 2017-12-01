@@ -165,7 +165,7 @@ def createNewStripe():
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         stripeToken = payload['stripeToken']
         print("stripe token: ", stripeToken)
-        allAccounts = stripe.Account.list()
+        allAccounts = stripe.Account.list(limit=3)
         target_account = None
         for account in allAccounts:
             if account['email'] == email:
@@ -196,7 +196,9 @@ def createNewStripe():
 
             newAccount.legal_entity.first_name = accountFname
             newAccount.legal_entity.first_name = accountFname
-            newAccount.legal_entity.tos_acceptance = accountToS
+            newAccount.legal_entity.tos_acceptance.date = accountToSD
+            newAccount.legal_entity.tos_acceptance.ip = accountToSI
+
             newAccount.legal_entity.address.city = accountCi
             newAccount.legal_entity.address.line1 = accountAddr
             newAccount.legal_entity.address.postal_code = accountzip
