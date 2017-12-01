@@ -642,6 +642,8 @@ def delete_bet():
 ######## Complete Bet ########
 @betRoutes.route('/bets/complete', methods=['POST'])
 def complete_bet():
+    authClass = authBackend()
+
     if request.method != 'POST':
         return jsonify({'result': False, 'error': "Invalid request"}), 400
 
