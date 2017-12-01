@@ -35,6 +35,7 @@ def get_notifications():
         res.append(notification.toJSON)
 
         notification.viewed = True
+        notification.save()
 
     response = jsonify({'notifications': res})
     response.status_code = 200
