@@ -64,7 +64,7 @@ def editInfo():
     return jsonify({'result': True, 'error': ''}), 200
 
 
-@userRoutes.route('/delete', methods=['POST'])
+@userRoutes.route('/users/delete', methods=['POST'])
 def deleteUser():
     if request.method != 'POST':
         return jsonify({'result': False, 'error': "Invalid request"}), 400
