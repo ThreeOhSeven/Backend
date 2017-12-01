@@ -177,8 +177,9 @@ def createNewStripe():
             return jsonify({'result' : False, 'error' : "Account with this email exists"})
 
         try:
-            newAccount = stripe.Account.create(type="custom",country="US",email=email,external_account=stripeToken)
+            # newAccount = stripe.Account.create(type="custom",country="US",email=email,external_account=stripeToken)
             print(calendar.timegm(time.gmtime()))
+            print(request.remote_addr)
             # newAccount.legal_entity.address.city = payload['']
             return jsonify({'result' : True})
         except Exception as e:
