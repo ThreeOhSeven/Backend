@@ -122,13 +122,7 @@ def getRequests():
         friend = db.session.query(User).filter_by(id=friendRequest.user_from).first()
         obj = {
             'status': friendRequest.status,
-            'friend':
-                {
-                    'id': friend.id,
-                    'username': friend.username,
-                    'email': friend.email,
-                    'birthday': friend.birthday
-                }
+            'friend': friend.toJSON
         }
         results.append(obj)
 
