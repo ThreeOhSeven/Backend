@@ -879,6 +879,5 @@ def get_bet():
             obj['users'] = users
 
 
-            response = obj
-            response['status_code'] = 200
-            return response
+            obj['status_code'] = 200
+            return obj
