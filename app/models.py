@@ -398,15 +398,15 @@ class Notification(db.Model):
     title = db.Column(db.Text, nullable=False)
     creation_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     viewed = db.Column(db.Boolean, nullable=False, default=False)
-    type = id = db.Column(db.Integer, nullable=True)
+    notif_type = db.Column(db.Integer, nullable=True)
 
-    def __init__(self, user_id, title, message, type):
+    def __init__(self, user_id, title, message, notif_type):
         self.user_id = user_id
         self.title = title,
         self.message = message,
         self.creation_time = datetime.now()
         self.viewed = False
-        self.type = type
+        self.type = notif_type
 
     def __repr__(self):
         return '<Notification id: {}>'.format(self.id)
@@ -428,7 +428,7 @@ class Notification(db.Model):
             'message': self.message,
             'creationTime': self.creation_time,
             'viewed': self.viewed,
-            'type': type
+            'type': self.notif_type
         }
 
         return obj
