@@ -880,5 +880,5 @@ def get_bet():
 
 
             response = obj
-            response.status_code = 200
+            response['status_code'] = 200
             return response
