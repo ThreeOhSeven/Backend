@@ -103,3 +103,50 @@ def chargeStripe():
             print(e)
             return jsonify({'result' : False, 'error' : "error with card charge"}), 400
     return jsonify({'result' : False, 'error' : "Invalid request"}), 400
+
+@transactionRoutes.route("/payment/payout", methods = ["POST"])
+def processPayout():
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        token = payload['authToken']
+        authClass = authBackend()
+        email = authClass.decode_jwt(token)
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        stripeToken = payload['stripeToken']
+        print("stripe token: ", stripeToken)
+        payoutAmt = int(payload['chargeAmount'])
+        payoutName = payload['name']
+        try:
+            try:
+                bcOb = BlockchainTransact()
+                fundCheck = bcOb.verify_payout(email, payoutAmt)
+                if not fundCheck:
+                    return jsonify({'result' : False, 'error' : "Insufficient Funds"})
+            except Exception as e:
+                print("error with blockchain", e)
+                return jsonify({'result' : False, 'error' : "Some error with blockchain"}), 400
+            #process payout here
+            try:
+                # newAccount = stripe.Account.create(type="standard",country="US",email=email)
+                allAccounts = stripe.Account.list(limit=3)
+                target_account = None
+                for account in allAccounts:
+                    if account['email'] == email:
+                        target_account = account
+                        break
+                if target_account is None:
+                    print("no stripe account")
+                    return jsonify({'result' : False, 'error' : "This will not work for tomorrow"})
+
+                target_account_id = target_account['id']
+                payout = stripe.Transfer.create(amount = 100, currency = "usd", destination=target_account_id)
+                return jsonify({'result' : True})
+            except Exception as e:
+                print("error with creating stripe recipient: ", e)
+                return jsonify({'result' : False, 'error' : "Problem with creating Stripe recipient"})
+            return jsonify({'result' : True, 'message' : "Payout Successful"})
+        except Exception as e:
+            print("error with stripe", e)
+            return jsonify({'result' : False, 'error' : "error with payout"}), 400
+    return jsonify({'result' : False, 'error' : "Invalid request"}), 400
