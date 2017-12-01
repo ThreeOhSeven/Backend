@@ -16,6 +16,7 @@ def checkLogin():
 	# ...
 	if request.method == 'POST':
 		payload = json.loads(request.data.decode())
+		print(payload)
 		token = payload['authToken']
 		photoUrl = payload['photoUrl']
 
