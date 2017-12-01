@@ -10,7 +10,7 @@ notificationRoutes = Blueprint('notificationBp', __name__)
 
 
 # {authToken: xxxx, userId: xxxx}
-@notificationRoutes.route('/notifications/get', methods=['POST'])
+@notificationRoutes.route('/get', methods=['POST'])
 def get_notifications():
     authClass = authBackend()
 
