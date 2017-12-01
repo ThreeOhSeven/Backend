@@ -53,11 +53,11 @@ class authBackend:
             return True
         return False
 
-    def create_new_user(self, email, photoUrl):
+    def create_new_user(self, email):
         username = None
         birthday = None
         try:
-            user = User(username, email, birthday, photoUrl, 0)
+            user = User(username, email, birthday, 0)
             db.session.add(user)
             db.session.commit()
             return True
