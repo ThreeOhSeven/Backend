@@ -878,4 +878,4 @@ def get_bet():
             obj['liked'] = liked
             obj['users'] = users
 
-            return jsonify({'result': True, 'error': '', 'bet': obj}), 200
+            return jsonify(obj), 200
