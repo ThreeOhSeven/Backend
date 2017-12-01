@@ -705,7 +705,7 @@ def complete_bet():
 
         print("user.id user.confirmed winner")
         print(user.id)
-        print(user.confirmed)
+        print(bet_user.confirmed)
         print(winner)
 
 
