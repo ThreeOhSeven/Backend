@@ -29,6 +29,15 @@ def add_comment():
     bet_id = payload["betId"]
     text = payload["text"]
 
+    creator_id = models.Bet.query.filter_by(id=bet_id).first().creator_id
+
+    if user.id != creator_id:
+        if not (models.Friend.query.filter_by(friend_to=user.id, friend_from=creator_id).first() or models.Friend.query.filter_by(friend_to=creator_id, friend_from=user.id).first()):
+            return jsonify({'result': True, 'error': 'User not friend of owner'}), 400
+
+    if len(text) > 280:
+        return jsonify({'result': True, 'error': 'Comment was too long'}), 400
+
     comment = models.Comment(user.id, bet_id, text)
 
     try:
@@ -92,7 +101,13 @@ def get_comments():
     result = []
 
     for comment in comments:
-        result.append(comment.toJSON)
+        obj = comment.toJSON
+
+        temp_user = User.query.filter_by(id=comment.user_id).first()
+
+        obj['email'] = temp_user.email
+        obj['photoUrl'] = temp_user.photo_url
+        result.append(obj)
 
     response = jsonify({'comments': result})
     response.status_code = 200

@@ -43,6 +43,9 @@ def create_app(config_name):
     from .commentsBp import commentRoutes as comments_blueprint
     app.register_blueprint(comments_blueprint)
 
+    from .notificationsBp import notificationRoutes as notifications_blueprint
+    app.register_blueprint(notifications_blueprint, url_prefix='/notifications')
+
     from .transactionBp import transactionRoutes as transaction_routes
     app.register_blueprint(transaction_routes, url_prefix='/transaction')
 
