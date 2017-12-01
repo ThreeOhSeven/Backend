@@ -202,6 +202,10 @@ def createNewStripe():
             newAccount.legal_entity.address.postal_code = accountzip
             newAccount.legal_entity.address.state = accountState
             newAccount.legal_entity.ssn_last_4 = accountssn
+            newAccount.legal_entity.dob.day = accountDobD
+            newAccount.legal_entity.dob.month = accountDobM
+            newAccount.legal_entity.dob.year = accountDobY
+
             newAccount.save()
             return jsonify({'result' : True})
         except Exception as e:
