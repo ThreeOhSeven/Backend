@@ -116,8 +116,6 @@ def processPayout():
         email = authClass.decode_jwt(token)
         if email is False:
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
-        stripeToken = payload['stripeToken']
-        print("stripe token: ", stripeToken)
         payoutAmt = int(payload['payoutAmount']) * 100
         try:
             try:
