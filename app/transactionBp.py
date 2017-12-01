@@ -119,7 +119,6 @@ def processPayout():
         stripeToken = payload['stripeToken']
         print("stripe token: ", stripeToken)
         payoutAmt = int(payload['payoutAmount']) * 100
-        payoutName = payload['name']
         try:
             try:
                 bcOb = BlockchainTransact()
@@ -177,10 +176,33 @@ def createNewStripe():
             return jsonify({'result' : False, 'error' : "Account with this email exists"})
 
         try:
-            # newAccount = stripe.Account.create(type="custom",country="US",email=email,external_account=stripeToken)
-            print(calendar.timegm(time.gmtime()))
-            print(request.remote_addr)
-            # newAccount.legal_entity.address.city = payload['']
+            newAccount = stripe.Account.create(type="custom",country="US",email=email,external_account=stripeToken)
+            accountToSD = calendar.timegm(time.gmtime())
+            accountToSI = request.remote_addr
+            accountToS = {'date' : accountToSD, 'ip' : accountToSI}
+            accountAddr = payload['address']
+            accountFname = payload['firstName']
+            accountLname = payload['lastName']
+            accountzip = payload['postalCode']
+            accountssn = payload['ssnLast4']
+            accountState = payload['state']
+            accountDobM = payload['dateOfBirth']['month']
+            accountDobD = payload['dateOfBirth']['day']
+            accountDobY = payload['dateOfBirth']['year']
+            accountCi = payload['city']
+
+            newAccount.legal_entity.first_name = accountFname
+            newAccount.legal_entity.last_name = accountLname
+
+            newAccount.legal_entity.first_name = accountFname
+            newAccount.legal_entity.first_name = accountFname
+            newAccount.legal_entity.tos_acceptance = accountToS
+            newAccount.legal_entity.address.city = accountCi
+            newAccount.legal_entity.address.line1 = accountAddr
+            newAccount.legal_entity.address.postal_code = accountzip
+            newAccount.legal_entity.address.state = accountState
+            newAccount.legal_entity.ssn_last_4 = accountssn
+            newAccount.save()
             return jsonify({'result' : True})
         except Exception as e:
             print(e)
