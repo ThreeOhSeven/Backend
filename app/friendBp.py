@@ -48,7 +48,8 @@ def getFriends():
                     'id': friend.id,
                     'username': friend.username,
                     'email': friend.email,
-                    'birthday': friend.birthday
+                    'birthday': friend.birthday,
+                    'photoUrl': friend.photo_url
                 }
             }
             results.append(obj)
@@ -87,7 +88,8 @@ def getPending():
                 'id': friend.id,
                 'username': friend.username,
                 'email': friend.email,
-                'birthday': friend.birthday
+                'birthday': friend.birthday,
+                'photoUrl': friend.photo_url
              }
          }
         results.append(obj)
@@ -127,7 +129,8 @@ def getRequests():
                     'id': friend.id,
                     'username': friend.username,
                     'email': friend.email,
-                    'birthday': friend.birthday
+                    'birthday': friend.birthday,
+                    'photoUrl': friend.photoUrl
                 }
         }
         results.append(obj)

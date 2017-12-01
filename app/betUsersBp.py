@@ -279,7 +279,8 @@ def get_not_friends():
             'id' : fnbO.id,
             'username' : fnbO.username,
             'email' : fnbO.email,
-            'birthday' : fnbO.birthday
+            'birthday' : fnbO.birthday,
+            'photoUrl': fnbO.photo_url
         }
         fnb_ob.append(ob)
 
