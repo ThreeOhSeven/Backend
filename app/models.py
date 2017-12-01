@@ -394,19 +394,24 @@ class Notification(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
     user = db.relationship('User', backref=db.backref('Notifications', passive_deletes=True))
 
+    bet_id = db.Column(db.Integer, db.ForeignKey('Bets.id', ondelete='CASCADE'), nullable=True)
+    bet = db.relationship('Bet', backref=db.backref('Notifications', passive_deletes=True))
+
     message = db.Column(db.Text, nullable=False)
     title = db.Column(db.Text, nullable=False)
     creation_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     viewed = db.Column(db.Boolean, nullable=False, default=False)
     notif_type = db.Column(db.Integer, nullable=True)
 
-    def __init__(self, user_id, title, message, notif_type):
+
+    def __init__(self, user_id, title, message, notif_type, bet_id=None):
         self.user_id = user_id
         self.title = title,
         self.message = message,
         self.creation_time = datetime.now()
         self.viewed = False
         self.notif_type = notif_type
+        self.bet_id = bet_id
 
     def __repr__(self):
         return '<Notification id: {}>'.format(self.id)
@@ -428,7 +433,8 @@ class Notification(db.Model):
             'message': self.message,
             'creationTime': self.creation_time,
             'viewed': self.viewed,
-            'type': self.notif_type
+            'type': self.notif_type,
+            'betId': self.bet_id
         }
 
         return obj
