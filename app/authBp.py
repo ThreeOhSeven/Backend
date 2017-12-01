@@ -17,6 +17,7 @@ def checkLogin():
 	if request.method == 'POST':
 		payload = json.loads(request.data.decode())
 		token = payload['authToken']
+		photoUrl = payload['photoUrl']
 		authClass = authBackend()
 		userId = authClass.google_check(token)
 		if not userId:
@@ -24,7 +25,7 @@ def checkLogin():
 		authClass.setUserId(userId)
 		userExist = authClass.check_self_email(userId)
 		if not userExist:
-			addSuc = authClass.create_new_user(userId)
+			addSuc = authClass.create_new_user(userId, photoUrl)
 			if not addSuc:
 				print("user not added")
 		newToken = authClass.generateNewToken()
