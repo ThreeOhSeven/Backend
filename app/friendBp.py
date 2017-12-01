@@ -130,7 +130,7 @@ def getRequests():
                     'username': friend.username,
                     'email': friend.email,
                     'birthday': friend.birthday,
-                    'photoUrl': friend.photoUrl
+                    'photoUrl': friend.photo_url
                 }
         }
         results.append(obj)
