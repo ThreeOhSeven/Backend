@@ -205,6 +205,7 @@ def createNewStripe():
             newAccount.legal_entity.dob.day = accountDobD
             newAccount.legal_entity.dob.month = accountDobM
             newAccount.legal_entity.dob.year = accountDobY
+            newAccount.legal_entity.type = "individual"
 
             newAccount.save()
             return jsonify({'result' : True})
