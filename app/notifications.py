@@ -12,9 +12,9 @@ api_key = "AAAA2-UdK4Y:APA91bGo5arWnYhVRofMxAaaM9XXHijNQxxqSw5GsLkEyNMqe1ITIyJSR
 class Notifications:
 
     @staticmethod
-    def create_notification(user_id, title, message):
+    def create_notification(user_id, title, message, type):
 
-        notification = Notification(user_id, title, message)
+        notification = Notification(user_id, title, message, type)
         notification.save()
 
         temp_user = User.query.filter_by(id=user_id).first()

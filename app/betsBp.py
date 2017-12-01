@@ -778,7 +778,7 @@ def cancel_bet():
 def bet_notification(betUsers, title, message):
 
     for user in betUsers:
-        Notifications.create_notification(user.user_id, title, message)
+        Notifications.create_notification(user.user_id, title, message, 1)
 
 
 def bet_completion(bet, winner):
@@ -798,7 +798,7 @@ def bet_completion(bet, winner):
             temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
             # Notify user
             if user.side != winner:
-                Notifications.create_notification(user.user_id, "You Lost", bet.title + " has completed")
+                Notifications.create_notification(user.user_id, "You Lost", bet.title + " has completed", 0)
 
 
     if numOfWinners != 0:
@@ -812,7 +812,7 @@ def bet_completion(bet, winner):
         else:
             temp_user = db.session.query(models.User).filter_by(id=user.user_id).first()
             # Notify user
-            Notifications.create_notification(user.user_id, "You Won", bet.title + " has completed")
+            Notifications.create_notification(user.user_id, "You Won", bet.title + " has completed", 0)
 
     bet.complete = 1
     bet.locked = 1
