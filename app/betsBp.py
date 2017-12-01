@@ -698,6 +698,15 @@ def complete_bet():
         if user.confirmed is not winner:
             betUsersDisagree.append(user)
 
+    print("betUsersActive")
+    print(betUsersActive)
+
+    print("betUsersUnconfirmed")
+    print(betUsersUnconfirmed)
+
+    print("betUsersDisagree")
+    print(betUsersDisagree)
+
     if not betUsersUnconfirmed and not betUsersDisagree:
         print("completed")
         return bet_completion(bet, winner)
