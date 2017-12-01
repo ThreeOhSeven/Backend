@@ -189,7 +189,7 @@ def addFriend():
     return jsonify({'result': True, 'error': ''}), 200
 
 
-@friendsRoutes.route('/delete/', methods=['POST'])
+@friendsRoutes.route('/delete', methods=['POST'])
 def deleteFriend():
     if request.method != 'POST':
         return jsonify({'result': False, 'error': "Invalid request"}), 400
