@@ -695,7 +695,7 @@ def complete_bet():
     for user in betUsersActive:
         if user.confirmed is 2:
             betUsersUnconfirmed.append(user)
-        if user.side is not winner:
+        if user.confirmed is not winner:
             betUsersDisagree.append(user)
 
     if not betUsersUnconfirmed and not betUsersDisagree:
