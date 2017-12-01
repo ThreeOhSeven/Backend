@@ -648,6 +648,7 @@ def complete_bet():
 
     # Authenticate the token and extract values from the request
     payload = json.loads(request.data.decode())
+    print(payload)
     token = payload['authToken']
     betID = payload['betID']
     winner = payload['winner']
@@ -727,7 +728,7 @@ def cancel_bet():
 
     # Authenticate the token and extract values from the request
     payload = json.loads(request.data.decode())
-    print(payload)
+
     token = payload['authToken']
     betID = payload['betID']
     winner = payload['winner']
