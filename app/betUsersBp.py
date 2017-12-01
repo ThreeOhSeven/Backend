@@ -53,6 +53,11 @@ def join_bet():
     if current_balance < bet.amount:
         return jsonify({'result': False, 'error': 'User\'s balance is too low.'}), 400
 
+    # Check that the user is not already in the bet
+    in_bet = BetUsers.query.filter_by(bet_id=bet.id, user_id=user.id).first()
+    if in_bet is None:
+        return jsonify({'result': False, 'error': 'The user is already in the bet.'}), 400
+
     # Check if this request is an accept or a join
     betUser = db.session.query(BetUsers).filter(and_(BetUsers.user_id == user.id,
                                                         BetUsers.bet_id == bet.id)).first()
