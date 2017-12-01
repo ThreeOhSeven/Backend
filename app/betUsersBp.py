@@ -57,7 +57,7 @@ def join_bet():
     betUser = db.session.query(BetUsers).filter(and_(BetUsers.user_id == user.id,
                                                         BetUsers.bet_id == bet.id)).first()
     if betUser is None:
-        betUser = BetUsers(bet_id=betID, user_id=user.id, active=1, side=side)
+        betUser = BetUsers(bet_id=betID, user_id=user.id, active=1, side=side, confirmed=2)
     else:
         return jsonify({'result': False, 'error': 'User already in bet'}), 400
     betUser.save()
@@ -150,6 +150,7 @@ def accept_bet():
 
     betUser.side = side
     betUser.active = 1
+    betUser.confirmed = 2
     betUser.save()
 
     # Update the user and bet balance accordingly
