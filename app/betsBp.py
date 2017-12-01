@@ -37,7 +37,7 @@ def public_feed():
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         else:
 
-            bets = models.Bet.query.order_by(models.Bet.id)
+            bets = models.Bet.query.order_by(models.Bet.id.desc())
             results = []
 
             for bet in bets:
