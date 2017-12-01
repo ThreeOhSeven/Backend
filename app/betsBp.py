@@ -701,7 +701,7 @@ def complete_bet():
 
 
 
-    for user in betUsersActive:
+    for bet_user in betUsersActive:
 
         print("user.id user.confirmed winner")
         print(user.id)
@@ -710,9 +710,9 @@ def complete_bet():
 
 
         if user.confirmed is 2:
-            betUsersUnconfirmed.append(user)
+            betUsersUnconfirmed.append(bet_user)
         if user.confirmed is not int(winner):
-            betUsersDisagree.append(user)
+            betUsersDisagree.append(bet_user)
 
     print("betUsersActive")
     print(betUsersActive)
