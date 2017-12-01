@@ -699,7 +699,16 @@ def complete_bet():
     betUsersUnconfirmed = []
     betUsersDisagree = []
 
+
+
     for user in betUsersActive:
+
+        print("user.id user.confirmed winner")
+        print(user.id)
+        print(user.confirmed)
+        print(winner)
+
+
         if user.confirmed is 2:
             betUsersUnconfirmed.append(user)
         if user.confirmed is not winner:
