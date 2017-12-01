@@ -711,7 +711,7 @@ def complete_bet():
 
         if user.confirmed is 2:
             betUsersUnconfirmed.append(user)
-        if user.confirmed is not winner:
+        if user.confirmed is not int(winner):
             betUsersDisagree.append(user)
 
     print("betUsersActive")
