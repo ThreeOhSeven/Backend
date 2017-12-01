@@ -18,6 +18,10 @@ def checkLogin():
 		payload = json.loads(request.data.decode())
 		token = payload['authToken']
 		photoUrl = payload['photoUrl']
+
+		print(payload)
+		print("PhotoUrl " +  photoUrl)
+
 		authClass = authBackend()
 		userId = authClass.google_check(token)
 		if not userId:
