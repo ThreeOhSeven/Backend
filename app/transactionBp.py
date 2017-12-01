@@ -176,7 +176,7 @@ def createNewStripe():
             return jsonify({'result' : False, 'error' : "Account with this email exists"})
 
         try:
-            newAccount = stripe.Account.create(type="custom",country="US",email=email,external_account=stripeToken)
+            newAccount = stripe.Account.create(type="custom",country="US",email=email,external_account=stripeToken, tos_acceptance={'date': 1512106485,'ip': "128.210.106.73"})
             accountToSD = calendar.timegm(time.gmtime())
             accountToSI = request.remote_addr
             accountToS = {'date' : accountToSD, 'ip' : accountToSI}
@@ -194,10 +194,8 @@ def createNewStripe():
             newAccount.legal_entity.first_name = accountFname
             newAccount.legal_entity.last_name = accountLname
 
-            newAccount.legal_entity.first_name = accountFname
-            newAccount.legal_entity.first_name = accountFname
-            newAccount.legal_entity.tos_acceptance.date = accountToSD
-            newAccount.legal_entity.tos_acceptance.ip = accountToSI
+            # newAccount.legal_entity.tos_acceptance.date = accountToSD
+            # newAccount.legal_entity.tos_acceptance.ip = accountToSI
 
             newAccount.legal_entity.address.city = accountCi
             newAccount.legal_entity.address.line1 = accountAddr
