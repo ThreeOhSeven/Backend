@@ -114,3 +114,9 @@ class BlockchainTransact:
         accHex = bcAddr.account_hex
         account_balance = self.contractInstance.balanceOf(decode_hex(accHex))
         return account_balance
+
+    def verify_payout(self, email, requestedAmt):
+        availableFunds = self.getBalance(email)
+        if requestedAmt > availableFunds:
+            return False
+        return True
