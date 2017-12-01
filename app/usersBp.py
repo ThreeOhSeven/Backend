@@ -229,3 +229,29 @@ def post_feedback():
             feedback = Feedback(user_id=user.id, text=text)
             feedback.save()
             return jsonify({'result': True, 'error':'' }), 200
+
+@userRoutes.route('/users/update/photo', methods=['POST'])
+def update_photoUrl():
+    authClass = authBackend()
+
+    if request.method != 'POST':
+        return jsonify({'result': False, 'error': "Invalid request"}), 400
+
+    # Authenticate the token and extract values from the request
+    payload = json.loads(request.data.decode())
+    token = payload['authToken']
+    photoUrl = payload['photoUrl']
+
+    email = authClass.decode_jwt(token)
+    if email is False:
+        return jsonify({'result': False, 'error': 'Failed Token'}), 400
+
+    user = db.session.query(User).filter_by(email=email).first()
+
+    if user is None:
+        return jsonify({'result': False, 'error': 'User not found'}), 400
+
+    user.photo_url = photoUrl
+    user.save()
+
+    return jsonify({'result': True, 'error': ''}), 200
