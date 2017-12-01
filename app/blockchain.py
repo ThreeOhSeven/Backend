@@ -91,6 +91,24 @@ class BlockchainTransact:
             return False
         return False
 
+    def withdraw_from_user_with_uid(self, email, amount):
+        user = db.session.query(User).filter_by(email=email).first()
+        if user is None:
+            return False
+        bcAddr = db.session.query(AddressBook).filter_by(user_id=user.id).first()
+        if bcAddr is None:
+            return False
+        accHex = str(bcAddr.account_hex)
+        unlockPhr = bcAddr.bc_passphrase
+        unlockRes = self.unlock_user(accHex, unlockPhr)
+        if unlockRes:
+            #successful unlock of account
+            txHash = self.contractInstance.transfer(self.parentAccount, int(amount), transact={'from' : accHex})
+            return True, txHash
+        else:
+            return False
+        return False
+
     def getBalance(self, email):
         user = db.session.query(User).filter_by(email=email).first()
         if user is None:
@@ -117,6 +135,7 @@ class BlockchainTransact:
 
     def verify_payout(self, email, requestedAmt):
         availableFunds = self.getBalance(email)
-        if requestedAmt > availableFunds:
+        reqAm = requestedAmt / 100
+        if reqAm > availableFunds:
             return False
         return True
