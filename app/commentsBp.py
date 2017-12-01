@@ -32,7 +32,7 @@ def add_comment():
     creator_id = models.Bet.query.filter_by(id=bet_id).first().creator_id
 
     if user.id != creator_id:
-        if not (models.Friend.query.filter_by(friend_to=user.id, friend_from=creator_id).first() or models.Friend.query.filter_by(friend_to=creator_id, friend_from=user.id).first()):
+        if not (models.Friend.query.filter_by(user_to=user.id, user_from=creator_id).first() or models.Friend.query.filter_by(user_to=creator_id, user_from=user.id).first()):
             return jsonify({'result': True, 'error': 'User not friend of owner'}), 400
 
     if len(text) > 280:
