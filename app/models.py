@@ -406,7 +406,7 @@ class Notification(db.Model):
         self.message = message,
         self.creation_time = datetime.now()
         self.viewed = False
-        self.type = notif_type
+        self.notif_type = notif_type
 
     def __repr__(self):
         return '<Notification id: {}>'.format(self.id)
