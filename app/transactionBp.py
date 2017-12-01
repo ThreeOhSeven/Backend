@@ -115,7 +115,7 @@ def processPayout():
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         stripeToken = payload['stripeToken']
         print("stripe token: ", stripeToken)
-        payoutAmt = int(payload['chargeAmount']) * 100
+        payoutAmt = int(payload['payoutAmount']) * 100
         payoutName = payload['name']
         try:
             try:
@@ -128,7 +128,6 @@ def processPayout():
                 return jsonify({'result' : False, 'error' : "Some error with blockchain"}), 400
             #process payout here
             try:
-                # newAccount = stripe.Account.create(type="standard",country="US",email=email)
                 allAccounts = stripe.Account.list(limit=3)
                 target_account = None
                 for account in allAccounts:
@@ -140,7 +139,8 @@ def processPayout():
                     return jsonify({'result' : False, 'error' : "This will not work for tomorrow"})
 
                 target_account_id = target_account['id']
-                payout = stripe.Transfer.create(amount = payoutAmt, currency = "usd", destination=target_account_id)
+                transfer = stripe.Transfer.create(amount = payoutAmt, currency = "usd", destination=target_account_id)
+                payout = stripe.Payout.create(amount = payoutAmt, currency = "usd", stripe_account=target_account_id)
                 return jsonify({'result' : True})
             except Exception as e:
                 print("error with creating stripe recipient: ", e)
@@ -149,4 +149,36 @@ def processPayout():
         except Exception as e:
             print("error with stripe", e)
             return jsonify({'result' : False, 'error' : "error with payout"}), 400
+    return jsonify({'result' : False, 'error' : "Invalid request"}), 400
+
+@transactionRoutes.route("/payment/connectAccount", methods = ["POST"])
+def createNewStripe():
+    if request.method == 'POST':
+        payload = json.loads(request.data.decode())
+        print(payload)
+        token = payload['authToken']
+        authClass = authBackend()
+        email = authClass.decode_jwt(token)
+        if email is False:
+            return jsonify({'result': False, 'error': 'Failed Token'}), 400
+        stripeToken = payload['stripeToken']
+        print("stripe token: ", stripeToken)
+        allAccounts = stripe.Account.list()
+        target_account = None
+        for account in allAccounts:
+            if account['email'] == email:
+                target_account = account
+                break
+
+        if target_account is not None:
+            return jsonify({'result' : False, 'error' : "Account with this email exists"})
+
+        try:
+            newAccount = stripe.Account.create(type="custom",country="US",email=email,external_account=stripeToken)
+            # newAccount.legal_entity.address.city = payload['']
+            return jsonify({'result' : True})
+        except Exception as e:
+            print(e)
+            return jsonify({'result' : False})
+
     return jsonify({'result' : False, 'error' : "Invalid request"}), 400
