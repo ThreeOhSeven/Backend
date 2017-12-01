@@ -44,7 +44,7 @@ def like_update():
                 else:
 
                     if like is not None:
-                        db.session.delete(like)
+                        like.delete()
 
                         return jsonify({'result': True, 'success': 'Like Removed'}), 200
                     else:
