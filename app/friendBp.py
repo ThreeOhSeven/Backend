@@ -175,7 +175,7 @@ def addFriend():
         db.session.add(new_friendship)
         db.session.commit()
 
-        Notifications.create_notification(user_to.id, "Friend Request", user_from.email + " has sent you a friend request", 3)
+        Notifications.create_notification(user_to.id, "Friend Request", user_from.email + " has sent you a friend request", 3, None)
 
         return jsonify({'result': True, 'error': ''}), 200
     elif friendship.status == 1:
