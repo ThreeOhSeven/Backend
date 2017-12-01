@@ -22,10 +22,11 @@ class User(db.Model):
     loses = db.Column(db.Integer, default=0)
     photo_url = db.Column(db.Text, nullable=True)
 
-    def __init__(self, username, email, birthday, current_balance):
+    def __init__(self, username, email, birthday, photo_url, current_balance):
         self.username = username
         self.email = email
         self.birthday = birthday
+        self.photo_url = photo_url
         self.current_balance = current_balance
 
     def __repr__(self):
