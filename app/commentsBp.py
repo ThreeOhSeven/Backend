@@ -106,6 +106,7 @@ def get_comments():
         temp_user = User.query.filter_by(id=comment.user_id).first()
 
         obj['email'] = temp_user.email
+        obj['photoUrl'] = temp_user.photo_url
         result.append(obj)
 
     response = jsonify({'comments': result})
