@@ -46,7 +46,7 @@ class User(db.Model):
             "username": self.username,
             "email": self.email,
             "birthday": self.birthday,
-            "photo_url": self.photo_url
+            "photoUrl": self.photo_url
         }
 
         return obj
