@@ -122,6 +122,7 @@ def processPayout():
                 bcOb = BlockchainTransact()
                 fundCheck = bcOb.verify_payout(email, payoutAmt)
                 if not fundCheck:
+                    print("Insufficient tokens")
                     return jsonify({'result' : False, 'error' : "Insufficient Funds"})
             except Exception as e:
                 print("error with blockchain", e)
@@ -141,7 +142,8 @@ def processPayout():
                 target_account_id = target_account['id']
                 transfer = stripe.Transfer.create(amount = payoutAmt, currency = "usd", destination=target_account_id)
                 payout = stripe.Payout.create(amount = payoutAmt, currency = "usd", stripe_account=target_account_id)
-                return jsonify({'result' : True})
+                withdrawSuc = bcOb.withdraw_from_user_with_uid(email, payoutAmt)
+                return jsonify({'result' : True, 'withdrawSuc' : withdrawSuc})
             except Exception as e:
                 print("error with creating stripe recipient: ", e)
                 return jsonify({'result' : False, 'error' : "Problem with creating Stripe recipient"})
