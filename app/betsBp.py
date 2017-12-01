@@ -851,10 +851,6 @@ def get_bet():
         else:
             bet = models.Bet.query.filter_by(id=payload['betId']).first()
 
-            bets = models.Bet.query.order_by(models.Bet.id)
-
-
-
             # Get like count
             count = models.Likes.query.filter_by(bet_id=bet.id).count()
 
