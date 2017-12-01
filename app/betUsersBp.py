@@ -86,6 +86,8 @@ def send_bet():
     user = db.session.query(User).filter_by(id=id).first()
     bet = db.session.query(Bet).filter_by(id=betID).first()
 
+    creator = User.query.filter_by(id=bet.creator_id).first()
+
     if user is None:
         return jsonify({'result': False, 'error': 'User not found'}), 400
 
@@ -101,7 +103,7 @@ def send_bet():
     betUser = BetUsers(bet_id=bet.id, user_id=user.id, active=0, side=0, confirmed=0)
     betUser.save()
 
-    Notifications.create_notification(user.id, "Bet Invite", "You've been invited to join " + user.email + "\'s bet", 2)
+    Notifications.create_notification(user.id, "Bet Invite", "You've been invited to join " + creator.email + "\'s bet", 2)
 
     return jsonify({'result': True, 'error': ''}), 200
 
