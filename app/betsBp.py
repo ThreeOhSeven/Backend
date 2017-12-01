@@ -600,6 +600,7 @@ def edit_bet():
 
                 return jsonify({'result': True, 'success': "Bet updated successfully"}), 200
 
+
 ######## Delete Bet ########
 @betRoutes.route('/bets/delete', methods=['POST'])
 def delete_bet():
@@ -642,8 +643,6 @@ def delete_bet():
 ######## Complete Bet ########
 @betRoutes.route('/bets/complete', methods=['POST'])
 def complete_bet():
-    authClass = authBackend()
-
     if request.method != 'POST':
         return jsonify({'result': False, 'error': "Invalid request"}), 400
 
@@ -728,6 +727,7 @@ def cancel_bet():
 
     # Authenticate the token and extract values from the request
     payload = json.loads(request.data.decode())
+    print(payload)
     token = payload['authToken']
     betID = payload['betID']
     winner = payload['winner']
