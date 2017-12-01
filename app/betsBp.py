@@ -723,6 +723,10 @@ def complete_bet():
     print("betUsersDisagree")
     print(betUsersDisagree)
 
+    print("creator and calling id")
+    print(betCreator.user_id)
+    print(user.id)
+
     if not betUsersUnconfirmed and not betUsersDisagree:
         print("completed")
         bet_completion(bet, winner)
@@ -733,7 +737,7 @@ def complete_bet():
         message = "Please make sure you selected the correct side."
         bet_notification(betUsersDisagree, title, message, bet.id)
         return jsonify({'result': True, 'error': ''}), 200
-    if betUsersUnconfirmed and firstComplete and betCreator.user_id is user.id:
+    if betUsersUnconfirmed and betCreator.user_id is user.id:
         print("firstComplete")
         title = "Confirm " + bet.title
         message = "Please confirm the winner of " + bet.title + "."
