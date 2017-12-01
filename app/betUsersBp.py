@@ -103,7 +103,7 @@ def send_bet():
     betUser = BetUsers(bet_id=bet.id, user_id=user.id, active=0, side=0, confirmed=0)
     betUser.save()
 
-    Notifications.create_notification(user.id, "Bet Invite", "You've been invited to join " + creator.email + "\'s bet", 2)
+    Notifications.create_notification(user.id, "Bet Invite", "You've been invited to join " + creator.email + "\'s bet", 2, bet.id)
 
     return jsonify({'result': True, 'error': ''}), 200
 
