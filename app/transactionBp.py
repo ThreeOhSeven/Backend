@@ -115,7 +115,7 @@ def processPayout():
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         stripeToken = payload['stripeToken']
         print("stripe token: ", stripeToken)
-        payoutAmt = int(payload['chargeAmount'])
+        payoutAmt = int(payload['chargeAmount']) * 100
         payoutName = payload['name']
         try:
             try:
@@ -140,7 +140,7 @@ def processPayout():
                     return jsonify({'result' : False, 'error' : "This will not work for tomorrow"})
 
                 target_account_id = target_account['id']
-                payout = stripe.Transfer.create(amount = 100, currency = "usd", destination=target_account_id)
+                payout = stripe.Transfer.create(amount = payoutAmt, currency = "usd", destination=target_account_id)
                 return jsonify({'result' : True})
             except Exception as e:
                 print("error with creating stripe recipient: ", e)
