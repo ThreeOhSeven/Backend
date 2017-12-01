@@ -11,6 +11,9 @@ transactionRoutes = Blueprint('transaction', __name__)
 stripe.api_key = Config.STRIPE_TEST_KEY
 from .authBp import authBackend
 
+import calendar
+import time
+
 @transactionRoutes.route("/testRoute", methods = ["GET"])
 def testRoute():
     return "Hello Transactions"
@@ -175,6 +178,7 @@ def createNewStripe():
 
         try:
             newAccount = stripe.Account.create(type="custom",country="US",email=email,external_account=stripeToken)
+            print(calendar.timegm(time.gmtime()))
             # newAccount.legal_entity.address.city = payload['']
             return jsonify({'result' : True})
         except Exception as e:
