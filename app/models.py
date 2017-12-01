@@ -291,6 +291,7 @@ class AddressBook(db.Model):
 
     account_hex = db.Column(db.Text, nullable=False)
     bc_passphrase = db.Column(db.Text, nullable=False)
+    stripe_account = db.Column(db.Text, nullable=True)
 
     def __init__(self, user_id, account_hex, bc_passphrase):
         self.user_id = user_id
