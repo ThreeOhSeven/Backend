@@ -91,7 +91,7 @@ def chargeStripe():
             return jsonify({'result': False, 'error': 'Failed Token'}), 400
         stripeToken = payload['stripeToken']
         print("stripe token: ", stripeToken)
-        chargeAmt = payload['chargeAmount']
+        chargeAmt = int(payload['chargeAmount']) * 100
         try:
             try:
                 bcOb = BlockchainTransact()
@@ -100,7 +100,7 @@ def chargeStripe():
                 return jsonify({'result' : False, 'error' : "Some error with blockchain"})
             charge = stripe.Charge.create(amount=chargeAmt, currency="usd", description="user deposit betcha", source = stripeToken)
             print("charge successful")
-            blockchainPaySuccess = bcOb.newPayment(email, int(chargeAmt) / 100)
+            blockchainPaySuccess = bcOb.newPayment(email, chargeAmt / 100)
             return jsonify({'result' : True})
         except Exception as e:
             print(e)
