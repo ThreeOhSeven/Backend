@@ -703,10 +703,10 @@ def complete_bet():
 
     for bet_user in betUsersActive:
 
-        print("user.id user.confirmed winner")
-        print(user.id)
-        print(bet_user.confirmed)
-        print(winner)
+        #print("user.id user.confirmed winner")
+        #print(user.id)
+        #print(bet_user.confirmed)
+        #print(winner)
 
 
         if bet_user.confirmed is 2:
@@ -714,18 +714,18 @@ def complete_bet():
         if bet_user.confirmed is not int(winner):
             betUsersDisagree.append(bet_user)
 
-    print("betUsersActive")
-    print(betUsersActive)
+    #print("betUsersActive")
+    #print(betUsersActive)
 
-    print("betUsersUnconfirmed")
-    print(betUsersUnconfirmed)
+    #print("betUsersUnconfirmed")
+    #print(betUsersUnconfirmed)
 
-    print("betUsersDisagree")
-    print(betUsersDisagree)
+    #print("betUsersDisagree")
+    #print(betUsersDisagree)
 
-    print("creator and calling id")
-    print(betCreator.user_id)
-    print(user.id)
+    #print("creator and calling id")
+    #print(betCreator.user_id)
+    #print(user.id)
 
     if not betUsersUnconfirmed and not betUsersDisagree:
         print("completed")
